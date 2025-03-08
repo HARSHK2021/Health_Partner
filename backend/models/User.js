@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    middleName:{
+    middleName:{ 
         type:String,
 
     },
