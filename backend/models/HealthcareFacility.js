@@ -54,3 +54,5 @@ const healthcareFacilitySchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
 });
+const HealthcareFacility = mongoose.model("HealthcareFacility", healthcareFacilitySchema);
+export default HealthcareFacility;
