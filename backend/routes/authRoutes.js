@@ -1,5 +1,6 @@
 import express from  'express';
 const router = express.Router();
+import {protect} from "../middlewares/authMiddleware.js"
 
 import { 
     signup, 
@@ -18,12 +19,12 @@ router.post("/signout", signout);
 
 
 // email OTP verification routes
-router.post("/request-email-otp", requestEmailOTP);
-router.post("/verify-email-otp", verifyEmailOTP);
+router.post("/request-email-otp",protect, requestEmailOTP);
+router.post("/verify-email-otp",protect, verifyEmailOTP);
 
 // phone OTP verification routes
 
-router.post("/request-phone-otp", requestPhoneOTP);
-router.post("/verify-phone-otp", verifyPhoneOTP);
+router.post("/request-phone-otp",protect, requestPhoneOTP);
+router.post("/verify-phone-otp", protect,verifyPhoneOTP);
 
 export default router;

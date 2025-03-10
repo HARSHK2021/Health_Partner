@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
         dateOfBirth: { type: Date },
         // Timestamp of registration
        // Timestamp of last update
-       createdAt: { type: Date, default: Date.now }, // Default timestamp
+         createdAt: { type: Date, default: Date.now }, // Default timestamp
         updatedAt: { type: Date },
 
         // Doctor-specific fields

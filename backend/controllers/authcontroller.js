@@ -2,15 +2,18 @@ import User from "../models/User.js"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import otpGenerator from "otp-generator"
+// import HealthcareFacility from '../models/HealthcareFacility.js'
+
+
 /// signup Controller 
 export const signup = async(req , res ,next)=>{
     try {
-        const { firstName, middleName, lastName,email, password, role , phone} = req.body;
+        const { firstName, middleName, lastName,email, password, role , phone ,gender} = req.body;
         // validate email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) return res.status(400).json({ message: "Invalid email address" });
         // validate the data
-        if (!firstName ||!lastName ||!email ||!password ||!role) return res.status(400).json({ message: "All fields are required" });
+        if (!firstName ||!lastName ||!email ||!password ||!role ||!gender) return res.status(400).json({ message: "All fields are required" });
         // validate phone
         const phoneRegex = /^\d{10}$/;
         if (!phoneRegex.test(phone)) return res.status(400).json({ message: "Invalid phone number" });
@@ -30,6 +33,7 @@ export const signup = async(req , res ,next)=>{
             password: hashedPassword,
             role,
             phone,
+            gender,
 
         });
         // save the user
@@ -37,6 +41,7 @@ export const signup = async(req , res ,next)=>{
         
        
         // generate and send jwt token
+        
         const token = jwt.sign({ id: user._id ,role:user.role}, process.env.JWT_SECRET , { expiresIn: '1d' });
         res.status(201).json({ user, token, message: "Signup successful, please verify your email and phone." });
 
@@ -54,7 +59,8 @@ export const signup = async(req , res ,next)=>{
     const { email, password } = req.body;
     // validate the data
     if (!email ||!password) return res.status(400).json({ message: "All fields are required" });
-    const user = await User.findOne({ email});
+    const user = await User.findOne({ email}).select("+password");
+    
     if (!user) return res.status(400).json({ message: "USername not found Please Signup" });
     // validate password
     const isValidPassword = await bcrypt.compare(password, user.password);
@@ -107,7 +113,9 @@ export const requestEmailOTP = async (req, res, next) => {
         if (!user) return res.status(400).json({ message: "User not found" });
         if (user.emailOTPExpiry < new Date()) return res.status(400).json({ message: "OTP expired, please request a new one" });
         if (user.emailOTP.toString() !== otp.toString()) return res.status(400).json({ message: "Invalid OTP" });
-
+         /// set emailVerification in db to true
+         user.isEmailVerified = true;
+          await user.save();
         // if all is ok, allow user to login
         res.status(200).json({ message: "OTP verified successfully, you can now login" });
         
@@ -158,6 +166,9 @@ export const verifyPhoneOTP = async (req, res, next) => {
         const isMatch = await bcrypt.compare(otp, user.phoneOTP);
         if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
         // if all is ok, allow user to login
+        user.isPhoneVerified = true;
+        await user.save();
+        // generate and send jwt token
         res.status(200).json({ message: "OTP verified successfully, you can now login" });
         
     } catch (error) {
@@ -179,3 +190,54 @@ export const signout = async (req, res, next) => {
    
  }
  /// register a medical facility
+ export const registerMedicalFacility = async (req, res, next) => {
+    try {
+        const { name, address, email, phone, facilityType,password } = req.body;
+        //validate data
+        if (!name ||!address ||!email ||!phone ||!facilityType) return res.status(400).json({ message: "All fields are required" });
+        const facilityExists = await MedicalFacility.findOne({ email });
+        if (facilityExists) return res.status(400).json({ message: "Facility already exists" });
+        // hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // create a new facility
+        const facility = new MedicalFacility({
+            name,
+            address,
+            email,
+            phone,
+            facilityType,
+            password: hashedPassword,
+        });
+        await facility.save();
+        res.status(201).json({ facility, message: "Facility registered successfully" });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error Can't Register Facility Try Again Later" });
+        
+    }
+ }
+
+ ///verify medical facility 
+//  export const verifyMedicalFacility = async (req, res, next) => {
+//     try {
+//         const { email, phone, } = req.body;
+//         // validate data
+//         if (!email ||!phone ) return res.status(400).json({ message: "All fields are required" });
+//         const facility = await MedicalFacility.findOne({ email });
+//         if (!facility) return res.status(400).json({ message: "Facility not found" });
+//         // verify phone number
+
+//         // verify registration certificate and license
+//         // verifyCertificateAndLicense function will come here ------------------->
+//         // if all is ok, allow user to login
+//         res.status(200).json({ message: "Facility verified successfully, you can now login" });
+   
+        
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: "Server Error Can't Verify Facility Try Again Later" });
+        
+//     }
+//  }
+ 

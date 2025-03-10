@@ -14,6 +14,9 @@ const healthcareFacilitySchema = new mongoose.Schema({
     lowercase: true,
     match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Email validation
   },
+  registration_certificate:{type: String},
+  license:{type: String},
+  password: { type: String, required: true },
   phone: { type: String, required: true, unique: true },
   address: {
     street: { type: String, required: true },
