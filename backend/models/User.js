@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
             lowercase: true,
             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Email validation
         },
-        password: { type: String, required: true },
+        password: { type: String, required: true,minlength:[6,'password must be at least 6 characters long'],select:false },
         role: { 
             type: String, 
             enum: ["patient", "doctor"], 
@@ -24,12 +24,18 @@ const userSchema = new mongoose.Schema(
         profileImage: { type: String }, // URL for profile image stored in cloud
         height:{ type:String},
         weight:{ type:String},
-        bodyMassIndex:{type:String};
-        Gender:{
+        bodyMassIndex:{type:String},
+        bloodGroup:{ type:String},
+        gender:{
             type: String, 
             enum: ["male", "female", "other"], 
             required: true 
         },
+        dateOfBirth: { type: Date },
+        // Timestamp of registration
+       // Timestamp of last update
+         createdAt: { type: Date, default: Date.now }, // Default timestamp
+        updatedAt: { type: Date },
 
         // Doctor-specific fields
         doctorProfile: {
@@ -37,10 +43,10 @@ const userSchema = new mongoose.Schema(
             experience: { type: Number },
             hospital: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" }, // Reference to Hospital
             patientsTreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Patients treated by doctor
-            isVerified:{ type:Boolean, default:false},
+           
         },
 
-        // Patient-specific fields
+        // all User-specific fields
         medicalHistory: [
             {
                 condition: { type: String },
@@ -58,9 +64,22 @@ const userSchema = new mongoose.Schema(
             },
         ],
         averageRating: { type: Number, default: 0 }, // store average rating
+        emailOTP: { type: String},
+        phoneOTP: { type: String},
+        emailOTPExpiry:{type:String},
+        phoneOTPExpiry:{type:String},
+        
+        isEmailVerified: { type: Boolean, default: false },
+        isPhoneVerified: { type: Boolean, default: false },
+        isVerified:{ type:Boolean, default:false}, // if email and phone verified then user is verified
+        isAdmin: { type: Boolean, default: false },
+        isActive: { type: Boolean, default: true }, // User is active by default
+        socketId:{
+            type: String,
+        }
     },
     { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 export default User;
