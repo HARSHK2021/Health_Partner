@@ -1,11 +1,11 @@
 // hospital || clinic Schema
 import mongoose from "mongoose";
 const healthcareFacilitySchema = new mongoose.Schema({
-  type: {
+  facilityType: {
     type: String,
-    enum: ["hospital", "clinic"],
-    required: true,
-  },
+    enum: ["Hospital", "Clinic", "Multi-Specialty", "Diagnostic Center"], // Add all allowed values
+    required: true
+},
   name: { type: String, required: true },
   email: {
     type: String,
@@ -25,7 +25,7 @@ const healthcareFacilitySchema = new mongoose.Schema({
     country: { type: String, required: true },
     zipCode: { type: String, required: true },
   },
-  establishedYear: { type: Number, required: true }, // Year of establishment
+  establishedYear: { type: Number }, // Year of establishment
   website: { type: String }, // Facility website URL
   profileImage: { type: String }, // Image (Appwrite storage)
   description: { type: String }, // About the hospital/clinic
@@ -39,6 +39,14 @@ const healthcareFacilitySchema = new mongoose.Schema({
     phone: { type: String },
     available24x7: { type: Boolean, default: false },
   },
+  totalBeds:{ type: Number},
+  ICUBeds:{ type: Number},
+
+  occupiedBeds:{ type: Number, default: 0},
+  availableBeds:{ type: Number, default: 0},
+  ambulanceAvailability:{type:Number},
+  opdTimings:{type:String},
+
   ratings: [
     {
       user: {
@@ -54,8 +62,16 @@ const healthcareFacilitySchema = new mongoose.Schema({
   averageRating: { type: Number, default: 0 },
 
   // Verification & Active Status
+  phoneOTP:{ type: String},
+  emailOTP:{ type: String},
+  phoneOTPExpires:{ type:String},
+  emailOTPExpires:{ type:String},
+  isPhoneVerified: { type: Boolean, default: false },
+  isEmailVerified: { type: Boolean, default: false },
+  verificationStatus: { type: String, enum: ["pending", "verified", "rejected"], default: "pending" },
+  activeStatus: { type: String, enum: ["pending", "active", "inactive"], default: "pending" },
   isVerified: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
-});
+},{timestamps:true});
 const HealthcareFacility = mongoose.model("HealthcareFacility", healthcareFacilitySchema);
 export default HealthcareFacility;
