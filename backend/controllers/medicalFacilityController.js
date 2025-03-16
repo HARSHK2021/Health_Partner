@@ -125,3 +125,60 @@ export const requestVerificationMedicalFacility = async (req, res) => {
   }
 
  }
+ /// login medical facility
+
+export const loginFacility = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide email and password"
+      });
+    }
+
+    // Check if facility exists
+    const facility = await HealthcareFacility.findOne({ email });
+    if (!facility) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, facility.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: facility._id, role: 'facility' },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    res.status(200).json({
+      success: true,
+      token,
+      facility: {
+        id: facility._id,
+        name: facility.name,
+        email: facility.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};

@@ -2,12 +2,13 @@ import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import './App.css';
 import Login from './components/LoginPage/Login';
 import UserRegistrationForm from './components/UserRegistration/UserRegistrationForm';
-import Dashboard from './components/Dashboard/Dashboard';
-
+import UserDashboard from './components/Dashboards/UserDashboard';
+import FacilityDashboard from './components/Dashboards/FacilityDashboard';
+import FacilityRegistrationForm from './components/FacilityRegistration/FacilityRegistrationForm';
 function App() {
   return (
     <>
-      Hello Coming soon
+     
       <Router>
         {/* <nav>
           <ul>
@@ -17,9 +18,11 @@ function App() {
           </ul>
         </nav> */}
         <Routes>
+           <Route path="/register-facility" element={<FacilityRegistrationForm  />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<UserRegistrationForm />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/user-dashboard" element={<UserDashboard/>} />
+          <Route path="/facility-dashboard" element={<FacilityDashboard />} />
         </Routes>
       </Router>
     </>

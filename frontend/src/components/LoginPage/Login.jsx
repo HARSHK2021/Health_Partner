@@ -12,22 +12,53 @@ import {
   Divider,
   Box,
   Link,
+  MenuItem,
 } from "@mui/material";
 
 import "./login.css";
+import axios from "axios";
 
+const loginOptions = ["User", "Facility"];
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [userType, setUserType] = useState("User");  /// store user by default
+  const [email , setEmail]= useState("");
+  const[password ,setPassword] =useState("");
 
   const handleLogin = async (e) => {
+    
     e.preventDefault();
+    
+    const userData = {
+      email,password,userType
+    }
+    console.log(userData);
     setIsLoading(true);
-    setTimeout(() => {
+    const apiUrl = userType === "User" ? (`${import.meta.env.VITE_BASE_URL}/auth/login`) : (`${import.meta.env.VITE_BASE_URL}/auth/login-facility`);
+
+    try {
+      const response = await axios.post(apiUrl,userData )
+      
+      if(response.status==200){
+        const data = response.data
+        localStorage.setItem('token',data.token)
+        
+        navigate(userType ==="User"? "/user-dashboard " : "/facility-dashboard");
+      }else{
+        alert("Login failed");
+      }
+      
+    } catch (error) {
+      console.log(error);
+      alert("An error occurred . Please try again.")
+      
+    } finally{
       setIsLoading(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
+
+   
   };
 
   const handleForgotPassword = async (e) => {
@@ -45,7 +76,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container ">
       <div className="login-wrapper">
         {showForgotPassword ? (
           <Card className="forgot-password-card">
@@ -121,6 +152,16 @@ export default function LoginPage() {
                   Enter your credentials to sign in to your account
                 </Typography>
                 <form onSubmit={handleLogin}>
+                  <TextField 
+                  onChange={(e)=> setUserType(e.target.value)}
+                  select fullWidth label="Login As" margin="normal">
+                    {loginOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+
                   <Box mb={2}>
                     <TextField
                       id="email"
@@ -129,6 +170,7 @@ export default function LoginPage() {
                       type="email"
                       fullWidth
                       required
+                      onChange={(e)=>setEmail(e.target.value)}
                     />
                   </Box>
                   <Box mb={2}>
@@ -140,18 +182,20 @@ export default function LoginPage() {
                         type="password"
                         fullWidth
                         required
+                        onChange={(e)=>setPassword(e.target.value)}
                       />
-                      <Box textAlign="right">
-                        <Link
-                          href="#"
-                          onClick={() => setShowForgotPassword(true)}
-                          variant="body2"
-                        >
-                          Forgot password?
-                        </Link>
-                      </Box>
                     </div>
+                    <Box textAlign="center">
+                      <Link
+                        href="#"
+                        onClick={() => setShowForgotPassword(true)}
+                        variant="body2"
+                      >
+                        Forgot password?
+                      </Link>
+                    </Box>
                   </Box>
+
                   <Button
                     variant="contained"
                     color="primary"
@@ -173,31 +217,6 @@ export default function LoginPage() {
                   </Button>
                 </form>
               </CardContent>
-              <CardActions>
-                <Divider />
-                <Box width="100%" textAlign="center" mt={2}>
-                  <Typography variant="body2" color="textSecondary">
-                    Or continue with
-                  </Typography>
-                </Box>
-                <Box width="100%" display="flex" justifyContent="center" mt={2}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className="social-button"
-                  >
-                    Google
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className="social-button"
-                    style={{ marginLeft: 8 }}
-                  >
-                    GitHub
-                  </Button>
-                </Box>
-              </CardActions>
             </Card>
           </div>
         )}
