@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
-
+import Navbar from "../Navbar/Navbar";
 
 import {
   Button,
@@ -19,54 +19,56 @@ import {
 import "./login.css";
 import axios from "axios";
 
-
 const loginOptions = ["User", "Facility"];
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [userType, setUserType] = useState("User");  /// store user by default
-  const [email , setEmail]= useState("");
-  const[password ,setPassword] =useState("");
+  const [userType, setUserType] = useState("User"); /// store user by default
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
-    
     e.preventDefault();
-    
+
     const userData = {
-      email,password,userType
-    }
-    
+      email,
+      password,
+      userType,
+    };
+
     setIsLoading(true);
-    const apiUrl = userType === "User" ? (`${import.meta.env.VITE_BASE_URL}/auth/login`) : (`${import.meta.env.VITE_BASE_URL}/auth/login-facility`);
+    const apiUrl =
+      userType === "User"
+        ? `${import.meta.env.VITE_BASE_URL}/auth/login`
+        : `${import.meta.env.VITE_BASE_URL}/auth/login-facility`;
 
     try {
-      const response = await axios.post(apiUrl,userData )
-      
-      if(response.status==200){
-        const data = response.data
-        localStorage.setItem('token',data.token)
-        
-        navigate(userType ==="User"? "/user-dashboard " : "/facility-dashboard");
-      }else{
+      const response = await axios.post(apiUrl, userData);
+
+      if (response.status == 200) {
+        const data = response.data;
+        localStorage.setItem("token", data.token);
+
+        localStorage.setItem("token", data.token);
+
+        navigate(
+          userType === "User" ? "/user-dashboard " : "/facility-dashboard"
+        );
+      } else {
         alert("Login failed");
       }
-      
     } catch (error) {
       console.log(error);
-      alert("An error occurred . Please try again.")
-      
-    } finally{
+      alert("An error occurred . Please try again.");
+    } finally {
       setIsLoading(false);
     }
-
-   
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-   
-   
+
     // Simulate API call
     if (!email) {
       alert("Please enter your email.");
@@ -74,20 +76,23 @@ export default function LoginPage() {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/forgot-password`, {
-        email,
-      });
-  
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/auth/forgot-password`,
+        {
+          email,
+        }
+      );
+
       if (response.status === 200) {
         alert("Password reset link has been sent to your email.");
         setShowForgotPassword(false);
       }
-    }catch(error){
+    } catch (error) {
       console.error(error);
       alert(error.response?.data?.message || "Failed to send reset link.");
-    }finally {
+    } finally {
       setIsLoading(false);
-    };
+    }
 
     setTimeout(() => {
       setIsLoading(false);
@@ -100,9 +105,9 @@ export default function LoginPage() {
   };
 
   return (
-    
-    <div className="login-container bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#312e81] ">
-       
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#312e81]">
+      <Navbar />
+      <div className="flex flex-1 justify-center items-center">
       <div className="login-wrapper">
         {showForgotPassword ? (
           <Card className="forgot-password-card">
@@ -117,14 +122,14 @@ export default function LoginPage() {
               <form onSubmit={handleForgotPassword}>
                 <Box mb={2}>
                   <TextField
-                   id="reset-email"
-                   label="Email"
-                   variant="outlined"
-                   type="email"
-                   fullWidth
-                   required
-                   value={email}  // Ensure state is used
-                   onChange={(e) => setEmail(e.target.value)} 
+                    id="reset-email"
+                    label="Email"
+                    variant="outlined"
+                    type="email"
+                    fullWidth
+                    required
+                    value={email} // Ensure state is used
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Box>
                 <Button
@@ -180,9 +185,13 @@ export default function LoginPage() {
                   Enter your credentials to sign in to your account
                 </Typography>
                 <form onSubmit={handleLogin}>
-                  <TextField 
-                  onChange={(e)=> setUserType(e.target.value)}
-                  select fullWidth label="Login As" margin="normal">
+                  <TextField
+                    onChange={(e) => setUserType(e.target.value)}
+                    select
+                    fullWidth
+                    label="Login As"
+                    margin="normal"
+                  >
                     {loginOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
@@ -198,7 +207,7 @@ export default function LoginPage() {
                       type="email"
                       fullWidth
                       required
-                      onChange={(e)=>setEmail(e.target.value)}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </Box>
                   <Box mb={2}>
@@ -210,7 +219,7 @@ export default function LoginPage() {
                         type="password"
                         fullWidth
                         required
-                        onChange={(e)=>setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
                     <Box textAlign="center">
@@ -248,6 +257,7 @@ export default function LoginPage() {
             </Card>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
