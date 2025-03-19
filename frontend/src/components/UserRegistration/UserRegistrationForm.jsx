@@ -1,10 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as z from "zod";
 import "./userregistrationform.css";
+import axios from "axios";
+import { useState } from "react";
+import { CircularProgress, Typography } from "@mui/material";
 
-// Zod Validation Schema
+// ✅ Zod Validation Schema
 const registrationSchema = z.object({
   firstName: z.string().min(2, "First Name must be at least 2 characters"),
   middleName: z.string().optional(),
@@ -26,17 +29,41 @@ const RegistrationForm = () => {
     resolver: zodResolver(registrationSchema),
   });
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const navigate = useNavigate();
+
+  // ✅ Submit Handler
+  const onSubmit = async (data) => {
+    setLoading(true);
+    
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/signup`, data);
+      setMessage({ type: "success", text: response.data.message });
+      setTimeout(() => navigate("/"), 2000); // Redirect after 2 sec
+    } catch (error) {
+      setMessage({ type: "error", text: error.response?.data?.message || "Something went wrong" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="registration-form">
       <h2>User Registration</h2>
+
+      {/* ✅ Display Success/Error Message */}
+      {message && (
+        <Typography color={message.type === "error" ? "error" : "primary"}>
+          {message.text}
+        </Typography>
+      )}
+
       <p className="required-legend">
         <span>*</span> Required fields
       </p>
 
+      {/* ✅ Name Fields */}
       <div className="form-group-row">
         <div className="form-group">
           <label data-required="*">First Name</label>
@@ -56,18 +83,21 @@ const RegistrationForm = () => {
         </div>
       </div>
 
+      {/* ✅ Email Field */}
       <div className="form-group">
         <label data-required="*">Email ID</label>
         <input type="email" {...register("email")} placeholder="john@example.com" />
         {errors.email && <p className="error">{errors.email.message}</p>}
       </div>
 
+      {/* ✅ Password Field */}
       <div className="form-group">
         <label data-required="*">Password</label>
         <input type="password" {...register("password")} placeholder="Choose a strong password" />
         {errors.password && <p className="error">{errors.password.message}</p>}
       </div>
 
+      {/* ✅ Role & Gender Fields */}
       <div className="form-group-row">
         <div className="form-group">
           <label data-required="*">Role</label>
@@ -80,7 +110,7 @@ const RegistrationForm = () => {
         <div className="form-group">
           <label data-required="*">Gender</label>
           <select {...register("gender")}>
-            <option value="">Select Gender</option>
+            <option value="">Select Gender</option> {/* Prevents auto-selection */}
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
@@ -89,17 +119,22 @@ const RegistrationForm = () => {
         </div>
       </div>
 
+      {/* ✅ Phone Field */}
       <div className="form-group">
         <label data-required="*">Phone</label>
         <input type="tel" {...register("phone")} placeholder="+91 XXXXX XXXXX" />
         {errors.phone && <p className="error">{errors.phone.message}</p>}
       </div>
 
-      <button type="submit" className="submit-btn">Register</button>
+      {/* ✅ Register Button */}
+      <button type="submit" className="submit-btn">
+        {loading ? <CircularProgress size={24} color="inherit" /> : "Register"}
+      </button>
 
+      {/* ✅ Login Redirect */}
       <p className="text-center mt-2 text-sm">
         Already Registered?{" "}
-        <Link to="/login" className="text-blue-600">Login here</Link>
+        <Link to="/verify" className="text-blue-600">Login here</Link>
       </p>
     </form>
   );

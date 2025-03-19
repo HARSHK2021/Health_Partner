@@ -5,24 +5,25 @@ import UserRegistrationForm from './components/UserRegistration/UserRegistration
 import UserDashboard from './components/Dashboards/UserDashboard';
 import FacilityDashboard from './components/Dashboards/FacilityDashboard';
 import FacilityRegistrationForm from './components/FacilityRegistration/FacilityRegistrationForm';
+import Home from './pages/Home';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyPage from "./pages/VerifyPage"
+
 function App() {
   return (
     <>
      
       <Router>
-        {/* <nav>
-          <ul>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-          </ul>
-        </nav> */}
         <Routes>
+          <Route path='/' element={<Home/>} />
            <Route path="/register-facility" element={<FacilityRegistrationForm  />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<UserRegistrationForm />} />
+          <Route path="reset-password/:token" element={<ResetPasswordPage/>} />
           <Route path="/user-dashboard" element={<UserDashboard/>} />
           <Route path="/facility-dashboard" element={<FacilityDashboard />} />
+          <Route path= "/verify" element={<VerifyPage/>} />
+         
         </Routes>
       </Router>
     </>

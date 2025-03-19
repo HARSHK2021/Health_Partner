@@ -20,6 +20,7 @@ import {
 import "@fontsource/poppins";
 import { Hospital } from "lucide-react";
 
+
 const schema = z.object({
   name: z.string().min(3, "Name is required"),
   address: z.object({
@@ -60,14 +61,15 @@ const FacilityRegistrationForm = () => {
     }
   };
   return (
+    <div >
+     
     <Box
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1554734867-bf3c00a49371?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGhvc3BpdGFsfGVufDB8fDB8fHwwc')",
+        backgroundImage: "linear-gradient(to bottom right, #1a1a2e, #16213e, #312e81)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         fontFamily: "Poppins, sans-serif",
@@ -214,7 +216,7 @@ const FacilityRegistrationForm = () => {
           </form>
         </Paper>
       </Container>
-    </Box>
+    </Box></div>
   );
 };
 

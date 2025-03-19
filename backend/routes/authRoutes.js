@@ -9,13 +9,18 @@ import {
     verifyEmailOTP, 
     requestPhoneOTP, 
     verifyPhoneOTP, 
-    signout ,
+    signout, 
+    forgotPassword,
+    resetPassword,
 
 } from "../controllers/authcontroller.js"
 /// user authentication routes
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/signout", signout);
+router.post("/forgot-password",forgotPassword);
+router.post("/reset-password",resetPassword);
+
 
 
 // email OTP verification routes

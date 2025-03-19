@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 
+
 import {
   Button,
   TextField,
@@ -17,6 +18,7 @@ import {
 
 import "./login.css";
 import axios from "axios";
+
 
 const loginOptions = ["User", "Facility"];
 export default function LoginPage() {
@@ -34,7 +36,7 @@ export default function LoginPage() {
     const userData = {
       email,password,userType
     }
-    console.log(userData);
+    
     setIsLoading(true);
     const apiUrl = userType === "User" ? (`${import.meta.env.VITE_BASE_URL}/auth/login`) : (`${import.meta.env.VITE_BASE_URL}/auth/login-facility`);
 
@@ -63,8 +65,30 @@ export default function LoginPage() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+   
+   
     // Simulate API call
+    if (!email) {
+      alert("Please enter your email.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/forgot-password`, {
+        email,
+      });
+  
+      if (response.status === 200) {
+        alert("Password reset link has been sent to your email.");
+        setShowForgotPassword(false);
+      }
+    }catch(error){
+      console.error(error);
+      alert(error.response?.data?.message || "Failed to send reset link.");
+    }finally {
+      setIsLoading(false);
+    };
+
     setTimeout(() => {
       setIsLoading(false);
       setShowForgotPassword(false);
@@ -76,7 +100,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container ">
+    
+    <div className="login-container bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#312e81] ">
+       
       <div className="login-wrapper">
         {showForgotPassword ? (
           <Card className="forgot-password-card">
@@ -91,12 +117,14 @@ export default function LoginPage() {
               <form onSubmit={handleForgotPassword}>
                 <Box mb={2}>
                   <TextField
-                    id="reset-email"
-                    label="Email"
-                    variant="outlined"
-                    type="email"
-                    fullWidth
-                    required
+                   id="reset-email"
+                   label="Email"
+                   variant="outlined"
+                   type="email"
+                   fullWidth
+                   required
+                   value={email}  // Ensure state is used
+                   onChange={(e) => setEmail(e.target.value)} 
                   />
                 </Box>
                 <Button

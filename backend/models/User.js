@@ -68,6 +68,8 @@ const userSchema = new mongoose.Schema(
         phoneOTP: { type: String},
         emailOTPExpiry:{type:String},
         phoneOTPExpiry:{type:String},
+        resetPasswordToken:{type:String},
+        resetPasswordExpires:{type:String},
         
         isEmailVerified: { type: Boolean, default: false },
         isPhoneVerified: { type: Boolean, default: false },

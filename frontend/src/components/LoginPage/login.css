@@ -531,3 +531,13 @@
     height: 48px;
   }
 }
+
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 100px;
+  height: auto;
+  z-index: 2;
+}
