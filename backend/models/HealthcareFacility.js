@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const healthcareFacilitySchema = new mongoose.Schema({
   facilityType: {
     type: String,
-    enum: ["Hospital", "Clinic", "Multi-Specialty", "Diagnostic Center"], // Add all allowed values
+    enum: ["Hospital", "Clinic", "Multi-Specialty", "Pharmacy"], // Add all allowed values
     required: true
 },
   name: { type: String, required: true },

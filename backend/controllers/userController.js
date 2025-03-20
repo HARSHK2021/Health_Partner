@@ -16,11 +16,25 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" })
   }
 }
+/// get user by uerID 
+export const getUser= async(req,res)=>{
+  try {
+    const { userID } = req.params;
+   console.log(userID)
+   const user = await User.findById(userID) .select("-password");
+   if(!user) return res.status(404).json({message:"User Not Found With This Email"})
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(" Error feteching user by id",error)
+    res.status(500).json({ message: "Server error" })
+    
+  }
 
+}
 /// update profile fr normal person
 
-import User from "../models/User.js";
-import { calculateBMI } from "../utils/bmiUtils.js"; // Import BMI function
+
+ // Import BMI function
 
 export const updateUserProfile = async (req, res) => {
     try {

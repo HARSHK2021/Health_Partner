@@ -3,12 +3,11 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import otpGenerator from "otp-generator";
 import dotenv from "dotenv";
-import mailSender from "../services/sendGrid.js"
-import resetPasswordTemplate from "../templates/resetPasswordTemplate.js"
-import sendMessage from "../services/sendPhoneMessage.js"
-import { ChallengeListInstance } from "twilio/lib/rest/verify/v2/service/entity/challenge.js";
+import mailSender from "../services/sendGrid.js";
+import resetPasswordTemplate from "../templates/resetPasswordTemplate.js";
+import HealthcareFacility from "../models/HealthcareFacility.js";
+import otpEmailTemplate from "../templates/otpTemplate.js"
 dotenv.config();
-// import HealthcareFacility from '../models/HealthcareFacility.js'
 
 /// signup Controller
 export const signup = async (req, res, next) => {
@@ -37,9 +36,14 @@ export const signup = async (req, res, next) => {
 
     // check if user already exists
     const userExists = await User.findOne({ email });
-    if (userExists)
+    if (userExists) {
+      // if (!userExists.isVerified) {
+      //   return res
+      //     .status(501)
+      //     .json({ message: "User already exists, Go to verify page" });
+      // }
       return res.status(400).json({ message: "User already exists" });
-
+    }
     // hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     // create a new user
@@ -63,13 +67,12 @@ export const signup = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    res
-      .status(201)
-      .json({
-        user,
-        token,
-        message: "Signup successful, please verify your email and phone.",
-      });
+    res.status(201).json({
+      user,
+      token,
+      message: "Signup successful, please verify your email and phone.",
+      type: "user", 
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -83,6 +86,7 @@ export const login = async (req, res, next) => {
     if (!email || !password)
       return res.status(400).json({ message: "All fields are required" });
     const user = await User.findOne({ email }).select("+password");
+    console.log(user);
 
     if (!user)
       return res
@@ -93,8 +97,11 @@ export const login = async (req, res, next) => {
     if (!isValidPassword)
       return res.status(400).json({ message: "Invalid Password" });
     // generate and send jwt token
+    if(!user.isVerified){
+      return res.status(404).json({ message: "User not verified" });
+    }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "2d",
     });
 
     res.status(200).json({ user, token, message: "Login Successful " });
@@ -104,124 +111,105 @@ export const login = async (req, res, next) => {
   }
 };
 
-// request  email OTP
-
-export const requestEmailOTP = async (req, res, next) => {
+/// register a medical facility
+export const registerMedicalFacility = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
-    const user = await User.findOne({ email: email });
-    if (!user) return res.status(400).json({ message: "User not found" });
-    //// generate otp
-    const otp = otpGenerator.generate(6, {
-      upperCase: false,
-      specialChars: false,
+    const { name, address, email, phone, facilityType, password } = req.body;
+    //validate data
+    if (!name || !address || !email || !phone || !facilityType)
+      return res.status(400).json({ message: "All fields are required" });
+    const facilityExists = await HealthcareFacility.findOne({ email });
+    if (facilityExists)
+      return res.status(400).json({ message: "Facility already exists" });
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // create a new facility
+    const facility = new HealthcareFacility({
+      name,
+      address,
+      email,
+      phone,
+      facilityType,
+      password: hashedPassword,
     });
-    console.log(otp);
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
-    //send otp to email function will come here ------------------->
-    
-    // save otp to user
-    user.emailOTPExpiry = otpExpiry;
-    user.emailOTP = otp;
-    await user.save();
-    res.status(200).json({ message: "OTP sent to your email" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "request OTP failed" });
-  }
-};
-
-/// Verify Email otp
-
-export const verifyEmailOTP = async (req, res, next) => {
-  try {
-    const { email, otp } = req.body;
-    if (!email || !otp)
-      return res.status(400).json({ message: "Email and OTP are required" });
-    const user = await User.findOne({ email: email });
-    if (!user) return res.status(400).json({ message: "User not found" });
-    if (user.emailOTPExpiry < new Date())
-      return res
-        .status(400)
-        .json({ message: "OTP expired, please request a new one" });
-    if (user.emailOTP.toString() !== otp.toString())
-      return res.status(400).json({ message: "Invalid OTP" });
-    /// set emailVerification in db to true
-    user.isEmailVerified = true;
-    await user.save();
-    // if all is ok, allow user to login
-    res
-      .status(200)
-      .json({ message: "OTP verified successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: " Email Verification failed" });
-  }
-};
-
-/// request phone OTP
-
-export const requestPhoneOTP = async (req, res, next) => {
-  try {
-    const { phone } = req.body;
-    if (!phone)
-      return res.status(400).json({ message: "Phone number is required" });
-    const user = await User.findOne({ phone: phone });
-    if (!user)
-      return res
-        .status(400)
-        .json({ message: "No User found with this number" });
-    //// generate otp
-    const otp = otpGenerator.generate(6, {
-      upperCase: false,
-      specialChars: false,
-    });
-    console.log(" OTP FOR PHONE IS=", otp);
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
-    // send otp to phone function will come here ------------------->
-    const body = `Your Verification OTP is ${otp}`
-     sendMessage(phone,body);
-    // save otp to user
-    const hashedOTP = await bcrypt.hash(otp, 10);
-    user.phoneOTPExpiry = otpExpiry;
-    user.phoneOTP = hashedOTP;
-    await user.save();
-    res.status(200).json({ message: "OTP sent to your phone" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "request OTP failed" });
-  }
-};
-
-/// Verify Phone otp
-export const verifyPhoneOTP = async (req, res, next) => {
-  try {
-    const { phone, otp } = req.body;
-    if (!phone || !otp)
-      return res.status(400).json({ message: "Phone and OTP are required" });
-    const user = await User.findOne({ phone: phone });
-    if (!user) return res.status(400).json({ message: "User not found" });
-    if (user.phoneOTPExpiry < new Date())
-      return res
-        .status(400)
-        .json({ message: "OTP expired, please request a new one" });
-    const isMatch = await bcrypt.compare(otp, user.phoneOTP);
-    if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
-    // if all is ok, allow user to login
-    user.isPhoneVerified = true;
-    await user.save();
+    await facility.save();
     // generate and send jwt token
-    res
-      .status(200)
-      .json({ message: "OTP verified successfully, you can now login" });
+    const token = jwt.sign({ id: facility._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    console.log(token);
+   return res
+      .status(201)
+      .json({ facility, token, message: "Facility registered successfully",
+        type:"facility"
+       });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Phone Verification failed" });
+    res
+      .status(500)
+      .json({
+        message: "Server Error Can't Register Facility Try Again Later",
+      });
   }
 };
 
-////  signout
+export const loginFacility = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide email and password",
+      });
+    }
+
+    // Check if facility exists
+    const facility = await HealthcareFacility.findOne({ email });
+    if (!facility) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, facility.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+    if(!facility.isVerified){
+      return res.status(404).json({
+        success: false,
+        message: "Not Verified ",
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: facility._id, role: "facility" },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.status(200).json({
+      success: true,
+      token,
+      facility,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 export const signout = async (req, res, next) => {
   try {
     res.clearCookie("token");
@@ -231,6 +219,156 @@ export const signout = async (req, res, next) => {
     res.status(500).json({ message: "Signout failed" });
   }
 };
+
+// request  email OTP
+
+// Request Email OTP
+export const requestEmailOTP = async (req, res) => {
+  try {
+    const { email, userType } = req.body;
+    console.log(userType);
+
+    if (!email || !userType) {
+      return res.status(400).json({ message: "Email and userType are required" });
+    }
+
+    // Select correct model based on userType
+    const Model = userType === "user" ? User : HealthcareFacility;
+    const user = await Model.findOne({ email });
+
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    // Generate OTP
+    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
+    console.log("Generated OTP:", otp);
+
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // Expires in 10 minutes
+    const response = mailSender(email, "Email Verification Code", otpEmailTemplate(otp), "Verify your email with this OTP");
+
+    console.log("Email send response:", response);
+    user.emailOTP = otp;
+    user.emailOTPExpiry = otpExpiry;
+    await user.save();
+
+    res.status(200).json({ message: "OTP sent to your email" , otp });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request OTP failed" });
+  }
+};
+
+// Verify Email OTP
+export const verifyEmailOTP = async (req, res) => {
+  console.log(req.body);
+  try {
+    const { email, emailOTP, userType } = req.body;
+
+    if (!email || !emailOTP || !userType) {
+      return res.status(400).json({ message: "Email, OTP, and userType are required" });
+    }
+
+    const Model = userType === "user" ? User : HealthcareFacility;
+    const user = await Model.findOne({ email });
+
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.emailOTPExpiry < new Date()) {
+      return res.status(400).json({ message: "OTP expired, please request a new one" });
+    }
+
+    if (user.emailOTP.toString() !== emailOTP.toString()) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+  
+
+
+ /// check if both verification are done 
+    user.isEmailVerified = true;
+    if (user.isEmailVerified && user.isPhoneVerified) {
+      user.isVerified = true;
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Email verification failed" });
+  }
+};
+
+// Request Phone OTP
+export const requestPhoneOTP = async (req, res) => {
+  try {
+    const { phone, userType } = req.body;
+
+    if (!phone || !userType) {
+      return res.status(400).json({ message: "Phone number and userType are required" });
+    }
+
+    const Model = userType === "user" ? User : HealthcareFacility;
+    const user = await Model.findOne({ phone });
+
+    if (!user) return res.status(400).json({ message: "No user found with this number" });
+
+    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
+    console.log("OTP for phone:", otp);
+
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    user.phoneOTP = hashedOTP;
+    user.phoneOTPExpiry = otpExpiry;
+      // Check if both verifications are done
+     
+    await user.save();
+
+    res.status(200).json({ message: "OTP sent to your phone", otp });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request OTP failed" });
+  }
+};
+
+// Verify Phone OTP
+export const verifyPhoneOTP = async (req, res) => {
+  try {
+    const { phone, phoneOTP, userType } = req.body;
+    console.log(req.body);
+
+    if (!phone || !phoneOTP|| !userType) {
+      return res.status(400).json({ message: "Phone, OTP, and userType are required" });
+    }
+
+    const Model = userType === "user" ? User : HealthcareFacility;
+    const user = await Model.findOne({ phone });
+
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.phoneOTPExpiry < new Date()) {
+      return res.status(400).json({ message: "OTP expired, please request a new one" });
+    }
+
+    const isMatch = await bcrypt.compare(phoneOTP, user.phoneOTP);
+    if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
+
+    user.isPhoneVerified = true;
+    if (user.isEmailVerified && user.isPhoneVerified) {
+      user.isVerified = true;
+    }
+    await user.save();
+
+    res.status(200).json({ message: "OTP verified successfully, you can now log in" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Phone verification failed" });
+  }
+};
+
+
+////  final verify to to update both email verfication and  phone verfication
+
+
 //// forgot password
 
 export const forgotPassword = async (req, res) => {
@@ -266,27 +404,27 @@ export const forgotPassword = async (req, res) => {
     console.log(response);
 
     res.status(200).json({ message: "Password reset link sent to email." });
-
-  
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
   }
 };
 
-
-export const resetPassword = async(req, res)=>{
-    const { token } = req.body;
+export const resetPassword = async (req, res) => {
+  const { token } = req.body;
   const { password } = req.body;
-  if (!token ) {
+  if (!token) {
     return res.status(400).json({ message: "Invalid request" });
   }
-  if(!password){
+  if (!password) {
     return res.status(400).json({ message: "Please enter a new password" });
   }
- try{
-
-    const user = await User.findOne({ resetPasswordExpires: { $gt: Date.now() } });
+  try {
+    const user = await User.findOne({
+      resetPasswordExpires: { $gt: Date.now() },
+    });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired token" });
@@ -307,12 +445,10 @@ export const resetPassword = async(req, res)=>{
     await user.save();
 
     res.status(200).json({ message: "Password reset successful" });
-
- }
-    
-   catch (error) {
+  } catch (error) {
     console.error("Reset Password Error:", error);
-    res.status(500).json({ message: "Something went wrong ", error: error.message });
-    
+    res
+      .status(500)
+      .json({ message: "Something went wrong ", error: error.message });
   }
-}
+};

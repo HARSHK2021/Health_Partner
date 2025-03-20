@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import HealthcareFacility from "../models/HealthcareFacility.js";
 
-const protect = async (req, res, next) => {
+ const protectFacility =  async (req, res, next) => {
     let token;
 
     // Check if token exists in headers
@@ -32,4 +32,4 @@ const protect = async (req, res, next) => {
     }
 };
 
-export default protect;
+export default protectFacility;

@@ -1,10 +1,12 @@
 import express from  'express';
 const router = express.Router();
-import {protect} from "../middlewares/authMiddleware.js"
-
+import protectUser from "../middlewares/protectUser.js"
+import protectFacility from "../middlewares/protectFacility.js"
 import { 
     signup, 
     login, 
+    registerMedicalFacility,
+    loginFacility,
     requestEmailOTP, 
     verifyEmailOTP, 
     requestPhoneOTP, 
@@ -14,22 +16,26 @@ import {
     resetPassword,
 
 } from "../controllers/authcontroller.js"
+import { getUser } from '../controllers/userController.js';
+import { getFacility } from '../controllers/medicalFacilityController.js';
+
 /// user authentication routes
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/signout", signout);
 router.post("/forgot-password",forgotPassword);
 router.post("/reset-password",resetPassword);
-
-
-
+router.post("/register-medical-facility",registerMedicalFacility);
+router.post('/login-facility',loginFacility );
 // email OTP verification routes
-router.post("/request-email-otp",protect, requestEmailOTP);
-router.post("/verify-email-otp",protect, verifyEmailOTP);
-
+//get user with id for verification
+router.get("/getuser/:userID",getUser);
+router.get("/getfacility/:userID",getFacility);
+router.post("/request-email-otp", requestEmailOTP);
+router.post("/verify-email-otp", verifyEmailOTP);
 // phone OTP verification routes
+router.post("/request-phone-otp", requestPhoneOTP);
+router.post("/verify-phone-otp",verifyPhoneOTP);
 
-router.post("/request-phone-otp",protect, requestPhoneOTP);
-router.post("/verify-phone-otp", protect,verifyPhoneOTP);
 
 export default router;

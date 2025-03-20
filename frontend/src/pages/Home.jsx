@@ -415,6 +415,7 @@ const Home = () => {
                   description:
                     "Access your medical records, schedule appointments, and manage your healthcare journey",
                   color: "from-blue-600 to-blue-400",
+                  link:"/register/user",
                 },
                 {
                   icon: <Stethoscope className="h-12 w-12 text-purple-400" />,
@@ -422,6 +423,7 @@ const Home = () => {
                   description:
                     "Manage patient records, schedules, and provide better care with our integrated platform",
                   color: "from-purple-600 to-purple-400",
+                  link:"/register/doctor",
                 },
                 {
                   icon: <Building2 className="h-12 w-12 text-emerald-400" />,
@@ -429,6 +431,7 @@ const Home = () => {
                   description:
                     "Streamline operations, manage staff, and enhance patient care delivery",
                   color: "from-emerald-600 to-emerald-400",
+                  link:"/register-facility",
                 },
               ].map((role, index) => (
                 <div key={index} className="h-full">
@@ -447,7 +450,8 @@ const Home = () => {
                         {role.description}
                       </p>
                       <button
-                        className={`mt-6 px-6 py-3 bg-gradient-to-r ${role.color} text-white rounded-lg w-full`}
+                        className={`mt-6 px-6 py-3 bg-gradient-to-r ${role.color} text-white rounded-lg w-full hover:scale-110`}
+                        onClick={()=> navigate(`${role.link}`)}
                       >
                         Get Started
                       </button>

@@ -17,7 +17,9 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link to="/" className="font-bold text-xl flex items-center gap-2">
             <HeartPulse className="h-8 w-8 text-blue-400" />
-            <span className="ml-2 text-white">CMH</span>
+            <span className="ml-2 text-xl font-bold text-white">
+                  Health Partner
+                </span>
           </Link>
         </div>
 
@@ -71,7 +73,7 @@ export default function Navbar() {
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center gap-6">
           <Link
-            to="/#home"
+            to="/"
             className="text-sm font-medium text-gray-300 hover:text-blue-400 transition-colors relative group py-2"
           >
             Home

@@ -29,6 +29,9 @@ const Home = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  //// apii call and functionality 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
     {/* Navigation */}

@@ -44,6 +44,7 @@ export default function LoginPage() {
       if (response.status === 200) {
         const data = response.data;
         localStorage.setItem("token", data.token);
+        // localStorage.setItem("type",userType)
         navigate(
           userType === "User" ? "/user-dashboard" : "/facility-dashboard"
         );
@@ -86,7 +87,7 @@ export default function LoginPage() {
   };
 
   const handleRegister = () => {
-    navigate("/register"); // Redirect to register page
+    navigate("/register/user"); // Redirect to register page
   };
 
   return (
@@ -148,9 +149,7 @@ export default function LoginPage() {
                 <Button variant="text" color="primary" disabled>
                   Login
                 </Button>
-                <Button variant="text" color="primary" onClick={handleRegister}>
-                  Register
-                </Button>
+                
               </div>
 
               <Card elevation={3} sx={{ padding: 3, borderRadius: 2 }}>
@@ -232,6 +231,11 @@ export default function LoginPage() {
                       )}
                     </Button>
                   </form>
+                  <div className=" w-full flex justify-center items-center">
+                    New here! <Button variant="text" color="primary" onClick={handleRegister}>
+                  Register
+              </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>

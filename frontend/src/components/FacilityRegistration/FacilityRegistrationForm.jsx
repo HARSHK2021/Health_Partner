@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import "@fontsource/poppins";
 import { Hospital } from "lucide-react";
+import Navbar from "../Navbar/Navbar";
 
 
 const schema = z.object({
@@ -52,8 +53,18 @@ const FacilityRegistrationForm = () => {
     setLoading(true);
     try {
       const response = await axios.post("http://localhost:4000/api/v1/auth/register-medical-facility", data);
-      setMessage(response.data.message);
-      navigate("/")
+      console.log(response);
+      if(response.status==201){
+       const data = response.data;
+       const userID= data.facility._id;
+       console.log("userID",userID);
+       localStorage.setItem('token',data.token );
+       localStorage.setItem('type',data.type);
+       localStorage.setItem('id',userID)
+       setTimeout(() => navigate(`/verify/${userID}`), 2000);
+       setMessage(data.message);
+      }
+      
     } catch (error) {
       setMessage(error.response?.data?.message || "Something went wrong");
     } finally {
@@ -61,14 +72,18 @@ const FacilityRegistrationForm = () => {
     }
   };
   return (
-    <div >
-     
+    <div>
+    {/* Navbar */}
+    <Navbar />
+
+    {/* Centered Box */}
     <Box
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
+        pt: "80px", // Adds space so the form doesn't overlap with Navbar
         backgroundImage: "linear-gradient(to bottom right, #1a1a2e, #16213e, #312e81)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -87,14 +102,18 @@ const FacilityRegistrationForm = () => {
             fontFamily: "Poppins, sans-serif",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Hospital sx={{ width: 50, height: 50 }} />
+          {/* Title */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, justifyContent: "center", mb: 2 }}>
+            <Hospital sx={{ width: 50, height: 50, color: "blue" }} />
             <Typography variant="h5" fontWeight="bold">
               Register Medical Facility
             </Typography>
           </Box>
 
+          {/* Error Message */}
           {message && <Typography color="error">{message}</Typography>}
+
+          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: "1rem" }}>
             <TextField
               fullWidth
@@ -105,6 +124,7 @@ const FacilityRegistrationForm = () => {
               margin="normal"
             />
 
+            {/* Address Fields */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
               <TextField
                 sx={{ flex: 1 }}
@@ -186,6 +206,8 @@ const FacilityRegistrationForm = () => {
               helperText={errors.password?.message}
               margin="normal"
             />
+
+            {/* Register Button */}
             <Button
               type="submit"
               variant="contained"
@@ -199,24 +221,21 @@ const FacilityRegistrationForm = () => {
               }}
               disabled={loading}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Register"
-              )}
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Register"}
             </Button>
-            
-            <p className="text-center mt-2 text-sm">
-            Already Registered? 
-            <Link to="/login" className="text-blue-600">
-             
-              Login here
-            </Link>
-          </p>
+
+            {/* Login Redirect */}
+            <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>
+              Already Registered?{" "}
+              <Link to="/login" style={{ color: "#1976d2", textDecoration: "none", fontWeight: "bold" }}>
+                Login here
+              </Link>
+            </Typography>
           </form>
         </Paper>
       </Container>
-    </Box></div>
+    </Box>
+  </div>
   );
 };
 

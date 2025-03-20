@@ -18,11 +18,11 @@ function App() {
           <Route path='/' element={<Home/>} />
            <Route path="/register-facility" element={<FacilityRegistrationForm  />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<UserRegistrationForm />} />
+          <Route path="/register/:role" element={<UserRegistrationForm />} />
           <Route path="reset-password/:token" element={<ResetPasswordPage/>} />
           <Route path="/user-dashboard" element={<UserDashboard/>} />
           <Route path="/facility-dashboard" element={<FacilityDashboard />} />
-          <Route path= "/verify" element={<VerifyPage/>} />
+          <Route path= "/verify/:userID" element={<VerifyPage/>} />
          
         </Routes>
       </Router>
