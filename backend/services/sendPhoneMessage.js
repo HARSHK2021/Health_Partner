@@ -8,7 +8,7 @@ const twilioClient = twilio(
     process.env.TWILIO_AUTH_TOKEN
   );
 
-  export const sendMessage = async (phone,body)=>{
+  const sendMessage = async (phone,body)=>{
    try {
     let formattedPhone =  `+91${phone}`;
     const message = await twilioClient.messages.create({
@@ -24,3 +24,5 @@ const twilioClient = twilio(
    }
    
   };
+
+  export default sendMessage;
