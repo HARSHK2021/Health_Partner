@@ -47,10 +47,11 @@ export default function LoginPage() {
       if (response.status === 200) {
         console.log("responser from login " ,response);
         const data = response.data;
-        const userID= data.user._id;
+        console.log("data",data.user._id)
+       
         localStorage.setItem("token", data.token);
-        localStorage.setItem('type',data.user.data);
-        localStorage.setItem('id',userID)
+        localStorage.setItem('type',data.user.role);
+        localStorage.setItem('id',data.user._id)
 
         // localStorage.setItem("type",userType)
       
