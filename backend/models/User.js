@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
             lowercase: true,
             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Email validation
         },
+        tagNumber: { type: String, unique: true, sparse: true }, // Assigned on registration,
+        
         password: { type: String, required: true, minlength: [6, 'password must be at least 6 characters long'], select: false },
         role: { type: String, enum: ["patient", "doctor"], required: true },
         phone: { type: String, required: true, unique: true },
@@ -28,11 +30,30 @@ const userSchema = new mongoose.Schema(
         doctorProfile: { type: mongoose.Schema.Types.ObjectId, ref: "DoctorProfile" },
 
         // Medical history (Separate Schema)
-        medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "MedicalHistory" }],
+        medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "MedicalRecord" }],
 
         // Medicine reminders (Separate Schema)
         medicineReminders: [{ type: mongoose.Schema.Types.ObjectId, ref: "MedicineReminder" }],
+        /// access request
+        accessRequests: [
+            {
+                doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Requesting doctor
+                status: { type: String, enum: ["pending", "approved", "denied"], default: "pending" },
+                requestedAt: { type: Date, default: Date.now },
+            },
+        ],
 
+        // Approved Doctors (Doctors who can access this patient's data)
+        approvedDoctors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+        pastVisits: [
+            {
+                doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Doctor who treated the patient
+                facility: { type: mongoose.Schema.Types.ObjectId, ref: "HealthcareFacility" }, // Hospital/clinic visited
+                date: { type: Date, default: Date.now },
+                notes: { type: String }, // Treatment summary
+            },
+        ],
         ratings: [
             {
                 user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -53,7 +74,7 @@ const userSchema = new mongoose.Schema(
         isEmailVerified: { type: Boolean, default: false },
         isPhoneVerified: { type: Boolean, default: false },
         isVerified: { type: Boolean, default: false },
-        isAdmin: { type: Boolean, default: false },
+       
         isActive: { type: Boolean, default: true },
         socketId: { type: String },
     },

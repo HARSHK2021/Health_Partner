@@ -9,7 +9,8 @@ import Home from './pages/Home';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyPage from "./pages/VerifyPage"
 import Dashboard from './pages/Dashboard';
-
+import PatientDashboard from './pages/PatientDashboard';
+import PatientProtectedWrapper from './Wrapper/PatientProtectedWrapper';
 function App() {
   return (
     <>
@@ -23,11 +24,19 @@ function App() {
           <Route path="reset-password/:token" element={<ResetPasswordPage/>} />
           <Route path="/user-dashboard" element={<UserDashboard/>} />
           <Route path="/facility-dashboard" element={<FacilityDashboard />} />
-          <Route path= "/verify/:userID" element={<VerifyPage/>} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/verify/:userID" element={<VerifyPage/>} />
+          <Route path="/dashboard/:" element={<Dashboard />} />
+
+   
+          <Route path="/patient-dashboard/" element ={<PatientProtectedWrapper>
+            <PatientDashboard/>
+            </PatientProtectedWrapper>
+            }/>
+         
          
         </Routes>
       </Router>
+      
     </>
   );
 }

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronsRightLeft, HeartPulse } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
+import { UserDataContext } from "../context/UserContext";
 export default function VerifyPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [phoneSent, setPhoneSent] = useState(false);
@@ -17,6 +17,7 @@ export default function VerifyPage() {
   const [userType, setUserType] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const {user , setUser} = React.useContext(UserDataContext)
 
   const navigate = useNavigate();
   const { userID } = useParams();
@@ -60,11 +61,13 @@ export default function VerifyPage() {
         if (endpoint) {
           const response = await axios.get(endpoint);
           const data = response.data;
-          console.log("User data fetched:", data);
+          console.log("User data fetched by verification page:", response);
+          setUser(data.user)
 
           if (type === "user") {
             setEmail(data.user?.email || "");
             setPhone(data.user?.phone || "");
+           
             if (data.user.isEmailVerified) {
               setEmailVerified(true);
               setEmailSent(true); // Disable button if already verified
@@ -92,7 +95,7 @@ export default function VerifyPage() {
     };
 
     getInfo();
-  }, [userID]);
+  }, []);
 
   const requestEmailOtp = async () => {
     try {
@@ -183,10 +186,11 @@ export default function VerifyPage() {
 
   useEffect(() => {
     if (emailVerified && phoneVerified) {
-      setTimeout(() => {
-        console.log("Redirecting to dashboard...");
-        window.location.href = "/dashboard";
-      }, 1500);
+     console.log(" redirecting to dashboard of")
+     console.log("this user is consoled when ridrecting ",user)
+     if(user.role =="patient"){
+      navigate(`/patient-dashboard/`);
+     }
     }
   }, [emailVerified, phoneVerified]);
 

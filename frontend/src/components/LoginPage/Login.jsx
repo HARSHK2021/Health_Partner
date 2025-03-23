@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
+
 import {
   Button,
   TextField,
@@ -13,8 +14,8 @@ import {
   CardContent,
 } from "@mui/material";
 import axios from "axios";
-
-const loginOptions = ["User", "Facility"];
+import { UserDataContext } from "../../context/UserContext";
+const loginOptions = ["Patient", "Facility", "Doctor"];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ export default function LoginPage() {
   const [userType, setUserType] = useState("User");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const {user , setUser} = React.useContext(UserDataContext)
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,21 +38,35 @@ export default function LoginPage() {
 
     setIsLoading(true);
     const apiUrl =
-      userType === "User"
-        ? `${import.meta.env.VITE_BASE_URL}/auth/login`
-        : `${import.meta.env.VITE_BASE_URL}/auth/login-facility`;
+      userType === "Facility"
+        ? `${import.meta.env.VITE_BASE_URL}/auth/login-facility`
+        : `${import.meta.env.VITE_BASE_URL}/auth/login`;
 
     try {
       const response = await axios.post(apiUrl, userData);
       if (response.status === 200) {
+        console.log("responser from login " ,response);
         const data = response.data;
+        const userID= data.user._id;
         localStorage.setItem("token", data.token);
+        localStorage.setItem('type',data.user.data);
+        localStorage.setItem('id',userID)
+
         // localStorage.setItem("type",userType)
-        navigate(
-          userType === "User" ? "/user-dashboard" : "/facility-dashboard"
-        );
+      
+        if(userType == "Patient"){
+          setUser(response.data.user);
+          navigate("/patient-dashboard")
+        } //// baki logo ka bheyaha aaayega
+        if(userType== "Doctor"){
+          navigate("/doctor-dashboard")
+        }
+        if(userType== "Facility"){
+          navigate("/facility-dashboard")
+        }
       } else {
-        alert("Login failed");
+      
+        alert("Login failed Wrong Credentials");
       }
     } catch (error) {
       console.log(error);
@@ -109,6 +126,7 @@ export default function LoginPage() {
                 >
                   Enter your email address, and we'll send you a link to reset
                   your password.
+                
                 </Typography>
                 <form onSubmit={handleForgotPassword}>
                   <Box mb={2}>

@@ -18,7 +18,6 @@ import {
 } from "../controllers/authcontroller.js"
 import { getUser } from '../controllers/userController.js';
 import { getFacility } from '../controllers/medicalFacilityController.js';
-
 /// user authentication routes
 router.post("/signup", signup);
 router.post("/login", login);

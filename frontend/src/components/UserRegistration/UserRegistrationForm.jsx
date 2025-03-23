@@ -47,6 +47,7 @@ const RegistrationForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  
   const navigate = useNavigate();
 
 
@@ -61,13 +62,14 @@ const RegistrationForm = () => {
       );
       if(response.status==201){
         const data = response.data;
+        console.log("data from registration page ",data)
         setMessage({ type: "success", text: response.data.message });
         const userID =data.user._id;
         console.log("userID",userID);
         localStorage.setItem('token',data.token );
-        localStorage.setItem('type',data.type);
+        localStorage.setItem('type',data.user.role);
         localStorage.setItem('id',userID)
-        setTimeout(() => navigate(`/verify/${userID}`), 2000);
+         navigate(`/verify/${userID}`);
       }
      // Redirect after 2 sec
     } catch (error) {
