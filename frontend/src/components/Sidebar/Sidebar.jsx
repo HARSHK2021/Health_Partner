@@ -87,7 +87,8 @@ function Sidebar({ role }) {
         ))}
       </nav>
       <div className="p-4 border-t">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg">
+        <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg"
+        onClick={()=>navigate("/user-settings")}>
           <Settings className="w-5 h-5" />
           <span>Settings</span>
         </button>

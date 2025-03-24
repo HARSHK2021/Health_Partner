@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { sendPeriodNotifications } from "../controllers/menstruationController.js"; // Adjust path if needed
+import { sendPeriodNotifications } from "../controllers/menstruationController.js"; 
 
 // Run every day at midnight
 cron.schedule("0 0 * * *", () => {
