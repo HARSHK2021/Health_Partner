@@ -14,16 +14,14 @@ import PatientProtectedWrapper from "./Wrapper/PatientProtectedWrapper";
 import DoctorFinder from "./components/PatientComponents/DoctorFinder";
 import Menstruation  from "./components/PatientComponents/Menstruation"
 import MyHealth from "./components/PatientComponents/MyHealth";
+import UserSettings from "./pages/UserSettings";
 function App() {
   return (
     <>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/register-facility"
-            element={<FacilityRegistrationForm />}
-          />
+          <Route path="/register-facility" element={<FacilityRegistrationForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register/:role" element={<UserRegistrationForm />} />
           <Route path="reset-password/:token" element={<ResetPasswordPage />} />
@@ -31,8 +29,9 @@ function App() {
           <Route path="/facility-dashboard" element={<FacilityDashboard />} />
           <Route path="/verify/:userID" element={<VerifyPage />} />
           <Route path="/dashboard/:" element={<Dashboard />} />
- 
 
+          {/* User Settings */}
+          <Route path="/user-settings" element={<UserSettings />} />
 
           <Route
             path="/patient-dashboard/*"
@@ -42,16 +41,11 @@ function App() {
               </PatientProtectedWrapper>
             }
           >
-            <Route index element={<MyHealth />} /> {/* Default component */}
+            <Route index element={<MyHealth />} />
             <Route path="myhealth" element={<MyHealth />} />
             <Route path="searchdoctor" element={<DoctorFinder />} />
             <Route path="menstruation" element={<Menstruation />} />
-            {/* <Route path="findhospital" element={<SearchHospital />} /> */}
           </Route>
-
-
-
-
         </Routes>
       </Router>
     </>
