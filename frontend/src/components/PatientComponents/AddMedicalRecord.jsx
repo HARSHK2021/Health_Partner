@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { FiPlus, FiTrash2, FiUpload, FiAlertCircle, FiX } from 'react-icons/fi';
+import { Plus, Trash2,  AlertCircle, CogIcon, UploadIcon } from "lucide-react"
 
 const AddMedicalRecord = () => {
   const [formData, setFormData] = useState({
@@ -150,7 +150,7 @@ const AddMedicalRecord = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="p-6 sm:p-8">
@@ -161,7 +161,7 @@ const AddMedicalRecord = () => {
             {errors.submit && (
               <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                 <div className="flex items-center">
-                  <FiAlertCircle className="mr-2" />
+                  <AlertCircle className="mr-2" />
                   {errors.submit}
                 </div>
               </div>
@@ -282,7 +282,7 @@ const AddMedicalRecord = () => {
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
                         disabled={formData.medicines.length === 1}
                       >
-                        <FiTrash2 size={20} />
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ const AddMedicalRecord = () => {
                   onClick={addMedicine}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
-                  <FiPlus /> Add Medicine
+                  <Plus /> Add Medicine
                 </button>
               </div>
 
@@ -339,7 +339,7 @@ const AddMedicalRecord = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Upload Prescription</label>
                     <div className="space-y-4">
                       <label className="flex flex-col items-center px-4 py-6 bg-white border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                        <FiUpload className="w-8 h-8 text-gray-400" />
+                        <UploadIcon className="w-8 h-8 text-gray-400" />
                         <span className="mt-2 text-sm text-gray-500">Select prescription images</span>
                         <input
                           type="file"
@@ -359,7 +359,7 @@ const AddMedicalRecord = () => {
                                 onClick={() => removeFile('prescriptionImages', index)}
                                 className="p-1 text-gray-500 hover:text-red-500"
                               >
-                                <FiX size={16} />
+                                <CogIcon size={16} />
                               </button>
                             </div>
                           ))}
@@ -372,7 +372,7 @@ const AddMedicalRecord = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Upload Medical Reports</label>
                     <div className="space-y-4">
                       <label className="flex flex-col items-center px-4 py-6 bg-white border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                        <FiUpload className="w-8 h-8 text-gray-400" />
+                        <UploadIcon className="w-8 h-8 text-gray-400" />
                         <span className="mt-2 text-sm text-gray-500">Select medical reports</span>
                         <input
                           type="file"
@@ -391,7 +391,7 @@ const AddMedicalRecord = () => {
                                 onClick={() => removeFile('medicalReports', index)}
                                 className="p-1 text-gray-500 hover:text-red-500"
                               >
-                                <FiX size={16} />
+                                <CogIcon size={16} />
                               </button>
                             </div>
                           ))}

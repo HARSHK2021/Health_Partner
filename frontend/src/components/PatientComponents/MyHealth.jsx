@@ -1,72 +1,178 @@
-import { Activity,
-    Calendar,
-    MessageSquare,
-    Pill as Pills,
-    Clock,
-    Heart,
-    Search,
-    Plus,
-    ChevronDown, } from 'lucide-react';
-import React, { useState } from 'react'
-import { Line } from 'react-chartjs-2';
-import { format } from 'date-fns';
-const healthTrends = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
+import {
+  Activity,
+  Calendar,
+  MessageSquare,
+  Pill as Pills,
+  Clock,
+  Heart,
+  Search,
+  Plus,
+  ChevronDown,
+  WeightIcon,
+  RulerIcon,
+  ChartCandlestickIcon,
+  ChartColumnStackedIcon,
+} from "lucide-react";
+import React, { useState } from "react";
+
+import { format } from "date-fns";
+import WeightChart from "./WeightChart";
+import ConditionChart from "./ConditionChart";
+import MedicalRecordsList from "./MedicalRecordsList";
+import { UserDataContext } from "../../context/UserContext";
+import BMIChart from "./BMIChart";
+
+const weightData = [
+  { date: "2024-01-01", weight: 68 },
+  { date: "2024-02-01", weight: 69 },
+  { date: "2024-03-01", weight: 70 },
+  { date: "2024-04-01", weight: 72 },
+  { date: "2024-05-01", weight: 71 },
+  { date: "2024-06-01", weight: 73 },
+];
+const sampleMedicalRecords = [
+  {
+    _id: "1",
+    condition: "Diabetes",
+    symptoms: ["Frequent urination", "Increased thirst"],
+    dateDiagnosed: "2024-01-10T00:00:00.000Z",
+    recoveryStatus: "ongoing",
+    medicines: [
       {
-        label: 'Heart Rate',
-        data: [72, 75, 73, 78, 71, 74, 72],
-        borderColor: 'rgb(255, 99, 132)',
-        tension: 0.1,
-      },
-      {
-        label: 'Blood Pressure (Systolic)',
-        data: [120, 118, 121, 119, 122, 118, 120],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
+        name: "Metformin",
+        dosage: "500mg",
+        frequency: "Twice a day",
+        duration: "30 days",
+        takenAt: ["2024-01-10T08:00:00.000Z", "2024-01-10T20:00:00.000Z"],
       },
     ],
-  };
-const MyHealth = ({user}) => {
-    const [showBookAppointment, setShowBookAppointment] = useState(false);
-const [selectedDate, setSelectedDate] = useState(new Date());
+    doctor: "Dr. John Doe",
+    hospital: "City General Hospital",
+    pharmacy: "HealthPlus Pharmacy",
+    prescriptionImages: ["https://via.placeholder.com/150"],
+    medicalReports: ["https://via.placeholder.com/150"],
+    additionalNotes: "Patient should maintain a healthy diet and exercise.",
+    createdAt: "2024-01-10T12:00:00.000Z",
+  },
+  {
+    _id: "2",
+    condition: "Hypertension",
+    symptoms: ["Headache", "Dizziness", "Blurred vision"],
+    dateDiagnosed: "2024-02-05T00:00:00.000Z",
+    recoveryStatus: "ongoing",
+    medicines: [
+      {
+        name: "Lisinopril",
+        dosage: "10mg",
+        frequency: "Once a day",
+        duration: "60 days",
+        takenAt: ["2024-02-05T09:00:00.000Z"],
+      },
+    ],
+    doctor: "Dr. Emily Clark",
+    hospital: "Metro Care Clinic",
+    pharmacy: "Wellness Pharmacy",
+    prescriptionImages: [],
+    medicalReports: [],
+    additionalNotes: "Monitor blood pressure regularly.",
+    createdAt: "2024-02-05T10:30:00.000Z",
+  },
+  {
+    _id: "3",
+    condition: "Asthma",
+    symptoms: ["Shortness of breath", "Coughing", "Wheezing"],
+    dateDiagnosed: "2024-03-15T00:00:00.000Z",
+    recoveryStatus: "recovered",
+    medicines: [
+      {
+        name: "Albuterol Inhaler",
+        dosage: "90mcg",
+        frequency: "As needed",
+        duration: "As required",
+        takenAt: [],
+      },
+    ],
+    doctor: "Dr. Sarah Lee",
+    hospital: "Greenwood Medical Center",
+    pharmacy: "MediTrust Pharmacy",
+    prescriptionImages: ["https://via.placeholder.com/150"],
+    medicalReports: ["https://via.placeholder.com/150"],
+    additionalNotes: "Avoid triggers like dust and cold air.",
+    createdAt: "2024-03-15T14:45:00.000Z",
+  },
+];
+const conditionData = [
+  { condition: "Diabetes", date: "2024-01-10" },
+  { condition: "Hypertension", date: "2024-02-05" },
+  { condition: "Asthma", date: "2024-03-15" },
+  { condition: "Flu", date: "2024-03-20" },
+  { condition: "COVID-19", date: "2024-04-01" },
+  { condition: "Heart Disease", date: "2024-05-10" },
+  { condition: "Flu", date: "2024-05-15" },
+  { condition: "Hypertension", date: "2024-06-01" },
+];
+const bmiData = [
+  { date: "2024-01-01", bmi: 22.5 },
+  { date: "2024-02-01", bmi: 23.1 },
+  { date: "2024-03-01", bmi: 22.8 },
+  { date: "2024-04-01", bmi: 23.4 },
+  { date: "2024-05-01", bmi: 22.9 },
+  { date: "2024-06-01", bmi: 23.2 },
+  { date: "2024-07-01", bmi: 23.0 },
+  { date: "2024-08-01", bmi: 23.5 },
+  { date: "2024-09-01", bmi: 22.7 },
+  { date: "2024-10-01", bmi: 22.6 },
+  { date: "2024-11-01", bmi: 23.3 },
+  { date: "2024-12-01", bmi: 23.1 },
+];
+const MyHealth = () => {
+  const { user, setUser } = React.useContext(UserDataContext);
+  const [showBookAppointment, setShowBookAppointment] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   return (
-    <div>
-      
+    <div className="p-5">
+      <div className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Welcome, {user.firstName}
+        </h1>
+        <p className="text-gray-600">Your health dashboard</p>
+      </div>
+
       {/* Health Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white flex gap-10 rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-4">
+        <div className="bg-white flex justify-between rounded-xl p-6 shadow-sm border border-gray-100">
+          {/* Weight */}
+          <div className="flex-1 flex items-center space-x-4">
             <div className="p-3 bg-purple-100 rounded-lg">
-              <Heart className="w-6 h-6 text-purple-600" />
+              <WeightIcon className="w-6 h-6 text-purple-600" />
             </div>
-            <div>
-              <p className="text-gray-600"> Weight</p>
-              <h3 className="text-xl font-bold"> kg</h3>
+            <div className="text-center">
+              <p className="text-gray-600">Weight</p>
+              <h3 className="text-lg font-bold">{user.weight} kg</h3>
             </div>
-            
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Height */}
+          <div className="flex-1 flex items-center space-x-4">
             <div className="p-3 bg-purple-100 rounded-lg">
-              <Heart className="w-6 h-6 text-purple-600" />
+              <RulerIcon className="w-6 h-6 text-purple-600" />
             </div>
-            <div>
-              <p className="text-gray-600"> Height</p>
-              <h3 className="text-xl font-bold"> kg</h3>
+            <div className="text-center">
+              <p className="text-gray-600">Height</p>
+              <h3 className="text-lg font-bold">{user.height} ft</h3>
             </div>
-            
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* BMI */}
+          <div className="flex-1 flex items-center space-x-4">
             <div className="p-3 bg-purple-100 rounded-lg">
-              <Heart className="w-6 h-6 text-purple-600" />
+              <ChartColumnStackedIcon className="w-6 h-6 text-purple-600" />
             </div>
-            <div>
-              <p className="text-gray-600"> BMI</p>
-              <h3 className="text-xl font-bold"> kg</h3>
+            <div className="text-center">
+              <p className="text-gray-600">BMI</p>
+              <h3 className="text-lg font-bold">{user.bodyMassIndex}</h3>
             </div>
-            
           </div>
         </div>
 
@@ -77,7 +183,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
             </div>
             <div>
               <p className="text-gray-600">BloodGroup</p>
-              <h3 className="text-xl font-bold">B+</h3>
+              <h3 className="text-xl font-bold">A+</h3>
             </div>
           </div>
         </div>
@@ -98,16 +204,22 @@ const [selectedDate, setSelectedDate] = useState(new Date());
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-semibold mb-4">Health Trends</h2>
-          <Line
-            data={healthTrends}
-            options={{
-              responsive: true,
-              plugins: { legend: { position: 'top' } },
-            }}
-          />
+          <ConditionChart data={conditionData} />
         </div>
+        <div className="flex flex-col gap-5">
+          
 
-       
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold mb-4">Weight Trends</h2>
+            <WeightChart data={weightData} />
+          </div>
+          <div>
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-xl font-semibold mb-4"> BMI Trends</h2>
+              <BMIChart data={bmiData} />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -128,16 +240,16 @@ const [selectedDate, setSelectedDate] = useState(new Date());
           <div className="p-6 space-y-4">
             {[
               {
-                doctor: 'Dr. Sarah Wilson',
-                specialty: 'Cardiologist',
-                date: '2024-03-20',
-                time: '10:00 AM',
+                doctor: "Dr. Sarah Wilson",
+                specialty: "Cardiologist",
+                date: "2024-03-20",
+                time: "10:00 AM",
               },
               {
-                doctor: 'Dr. Michael Brown',
-                specialty: 'General Physician',
-                date: '2024-03-25',
-                time: '2:30 PM',
+                doctor: "Dr. Michael Brown",
+                specialty: "General Physician",
+                date: "2024-03-25",
+                time: "2:30 PM",
               },
             ].map((appointment, index) => (
               <div
@@ -148,9 +260,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
                   <Calendar className="w-5 h-5 text-blue-600" />
                   <div>
                     <h3 className="font-medium"> doctor kanak </h3>
-                    <p className="text-sm text-gray-600">
-                      cardio serugen
-                    </p>
+                    <p className="text-sm text-gray-600">cardio serugen</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -170,16 +280,16 @@ const [selectedDate, setSelectedDate] = useState(new Date());
           <div className="p-6 space-y-4">
             {[
               {
-                name: 'Lisinopril',
-                dosage: '10mg',
-                time: '8:00 AM',
-                status: 'taken',
+                name: "Lisinopril",
+                dosage: "10mg",
+                time: "8:00 AM",
+                status: "taken",
               },
               {
-                name: 'Metformin',
-                dosage: '500mg',
-                time: '2:00 PM',
-                status: 'upcoming',
+                name: "Metformin",
+                dosage: "500mg",
+                time: "2:00 PM",
+                status: "upcoming",
               },
             ].map((medication, index) => (
               <div
@@ -197,9 +307,9 @@ const [selectedDate, setSelectedDate] = useState(new Date());
                   <span className="text-sm text-gray-600">medicine time </span>
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${
-                      medication.status === 'taken'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
+                      medication.status === "taken"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
                     {medication.status.charAt(0).toUpperCase() +
@@ -229,16 +339,20 @@ const [selectedDate, setSelectedDate] = useState(new Date());
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Date
+                </label>
                 <input
                   type="date"
-                  value={format(selectedDate, 'yyyy-MM-dd')}
+                  value={format(selectedDate, "yyyy-MM-dd")}
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Time</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Time
+                </label>
                 <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                   <option>09:00 AM</option>
                   <option>10:00 AM</option>
@@ -266,8 +380,9 @@ const [selectedDate, setSelectedDate] = useState(new Date());
           </div>
         </div>
       )}
+      <MedicalRecordsList records={sampleMedicalRecords} />
     </div>
-  )
-}
+  );
+};
 
-export default MyHealth
+export default MyHealth;

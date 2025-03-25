@@ -12,6 +12,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 
+
 const MedicalRecordsList = ({ records = [] }) => {
   const [selectedRecord, setSelectedRecord] = useState(null);
 

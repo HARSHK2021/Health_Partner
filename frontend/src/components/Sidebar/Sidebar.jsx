@@ -86,9 +86,9 @@ function Sidebar({ role }) {
 
         ))}
       </nav>
-      <div className="p-4 border-t">
+      <div className=" bg-gray-100  p-6 shadow-sm border border-gray-100">
         <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg"
-        onClick={()=>navigate("/user-settings")}>
+        onClick={()=>navigate("/patient-dashboard/user-settings")}>
           <Settings className="w-5 h-5" />
           <span>Settings</span>
         </button>
@@ -97,7 +97,9 @@ function Sidebar({ role }) {
           <span>Logout</span>
         </button>
       </div>
+     
     </div>
+    
   );
 }
 
