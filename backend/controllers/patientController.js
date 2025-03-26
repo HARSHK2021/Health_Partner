@@ -12,34 +12,53 @@ export const getUserProfile = async (req, res) => {
 // Update Profile (Includes height & weight)
 export const updateUserProfile = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const user = req.user;
-        const {address, profileImage, height, weight, bloodGroup, dateOfBirth } = req.body;
-          // Calculate BMI if height and weight are provided
-          let BMI = user.bmi;
-          if (weight && height) {
-              BMI = calculateBMI(weight, height);
-          }
 
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { 
-                address: address ?? user.address,
-                profileImage: profileImage ?? user.profileImage,
-                height: height ?? user.height,
-                weight: weight ?? user.weight,
-                bloodGroup: bloodGroup ?? user.bloodGroup,
-                dateOfBirth: dateOfBirth ?? user.dateOfBirth,
-                bmi: BMI,
-            },
-            { new: true }
-        ).select("-password -emailOTP -phoneOTP -resetPasswordToken");
+        const userId = req.user._id;
+        const { address, profileImage, height, weight, bloodGroup, dateOfBirth } = req.body;
+        console.log("aagay ayaha")
+        const user = req.user;
+
+         // Create an empty object to store updates
+    let updateFields = {};
+    let updateOperations = {}; // For pushing historical data
+    const currentDate = new Date();
+    let BMI = null;
+
+    // Add fields to update only if they are provided
+    if (address) updateFields.address = address;
+    if (profileImage) updateFields.profileImage = profileImage;
+    if (bloodGroup) updateFields.bloodGroup = bloodGroup;
+    if (dateOfBirth) updateFields.dateOfBirth = dateOfBirth;
+
+    // If both height and weight are provided, calculate and store BMI
+    if (weight && height) {
+      BMI = calculateBMI(weight, height);
+      console.log("BMI" , BMI)
+
+      updateFields.height = height; // Update latest height
+      updateFields.weight = weight; // Update latest weight
+
+      updateOperations.$push = {
+        ...updateOperations.$push,
+        heightData: { date: currentDate, height },
+        weightData: { date: currentDate, weight },
+        bmiRecords: { date: currentDate, bmi: BMI },
+      };
+    }
+
+    // Perform update with height, weight, and BMI history storage
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateFields, ...updateOperations },
+      { new: true, runValidators: true }
+    );
+        
 
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+        return res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }

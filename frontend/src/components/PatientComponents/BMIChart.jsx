@@ -6,7 +6,7 @@ ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale);
 
 const BMIChart = ({ data }) => {
     const chartData = {
-        labels: data.map(item => item.date),
+        labels: data.map(item => item.date.split('T')[0]),
         datasets: [
             {
                 label: "BMI",

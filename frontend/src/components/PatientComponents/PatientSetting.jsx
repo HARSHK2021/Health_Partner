@@ -1,8 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { CameraIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
 import { motion } from "framer-motion";
-
+import { UserDataContext } from "../../context/UserContext";
+import axios from "axios";
+import { getTime } from "date-fns";
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { 
@@ -24,18 +26,20 @@ const itemVariants = {
 const PatientSetting = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const { user, setUser } = React.useContext(UserDataContext);
   const [formData, setFormData] = useState({
-    firstName: "Durbal",
-    middleName: "",
-    lastName: "Nath",
-    email: "chukandar@gmail.com",
-    phone: "+1 234 567 890",
-    weight: "70",
-    height: "175",
-    bloodGroup: "A+",
-    address: "123 Main Street, City, Country",
+    firstName: `${user.firstName}`,
+    middleName: `${user.middleName}`,
+    lastName: `${user.lastName}`,
+    email: `${user.email}`,
+    phone: `${user.phone}`,
+    weight: "",
+    height: "",
+    bloodGroup: `${user.bloodGroup}`,
+    address: `${user.address}`,
   });
-
+  const token = localStorage.getItem("token"); 
+  // console.log(token);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -58,12 +62,19 @@ const PatientSetting = () => {
     try {
       console.log(formData);
       // For example, save data to server
-      const response = await fetch(CMH_ROUTES.EDIT_PROFILE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
+      const response = await axios.post(
+        CMH_ROUTES.EDIT_PROFILE, 
+        formData, // Directly pass formData (no need for JSON.stringify)
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("response from profile update",response)
+      setUser(response);
+      if (response.status!=200) {
         throw new Error("Failed to save changes.");
       }
       console.log("Changes saved successfully.");

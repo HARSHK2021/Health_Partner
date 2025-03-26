@@ -13,5 +13,5 @@ export const CMH_ROUTES = {
     LOGIN_FACILITY: `${host}/auth/login-facility`,
     REQUEST_EMAIL_OTP: `${host}/auth/request-email-otp`,
     VERIFY_EMAIL_OTP: `${host}/auth/verify-email-otp`,
-    EDIT_PROFILE: `${host}/user/edit-profile/:userID`,
+    EDIT_PROFILE: `${host}/patient/update-profile`,
 }

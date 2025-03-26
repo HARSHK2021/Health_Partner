@@ -22,14 +22,7 @@ import MedicalRecordsList from "./MedicalRecordsList";
 import { UserDataContext } from "../../context/UserContext";
 import BMIChart from "./BMIChart";
 
-const weightData = [
-  { date: "2024-01-01", weight: 68 },
-  { date: "2024-02-01", weight: 69 },
-  { date: "2024-03-01", weight: 70 },
-  { date: "2024-04-01", weight: 72 },
-  { date: "2024-05-01", weight: 71 },
-  { date: "2024-06-01", weight: 73 },
-];
+
 const sampleMedicalRecords = [
   {
     _id: "1",
@@ -111,24 +104,16 @@ const conditionData = [
   { condition: "Flu", date: "2024-05-15" },
   { condition: "Hypertension", date: "2024-06-01" },
 ];
-const bmiData = [
-  { date: "2024-01-01", bmi: 22.5 },
-  { date: "2024-02-01", bmi: 23.1 },
-  { date: "2024-03-01", bmi: 22.8 },
-  { date: "2024-04-01", bmi: 23.4 },
-  { date: "2024-05-01", bmi: 22.9 },
-  { date: "2024-06-01", bmi: 23.2 },
-  { date: "2024-07-01", bmi: 23.0 },
-  { date: "2024-08-01", bmi: 23.5 },
-  { date: "2024-09-01", bmi: 22.7 },
-  { date: "2024-10-01", bmi: 22.6 },
-  { date: "2024-11-01", bmi: 23.3 },
-  { date: "2024-12-01", bmi: 23.1 },
-];
+
 const MyHealth = () => {
   const { user, setUser } = React.useContext(UserDataContext);
   const [showBookAppointment, setShowBookAppointment] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+ 
+  const weightData = user.weightData
+  const bmiData =user.bmiRecords
+
+
 
   return (
     <div className="p-5">
@@ -160,7 +145,7 @@ const MyHealth = () => {
             </div>
             <div className="text-center">
               <p className="text-gray-600">Height</p>
-              <h3 className="text-lg font-bold">{user.height} ft</h3>
+              <h3 className="text-lg font-bold">{user.height} cm</h3>
             </div>
           </div>
 

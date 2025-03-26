@@ -12,7 +12,6 @@ import {
   Stethoscope,
 } from "lucide-react";
 
-
 const MedicalRecordsList = ({ records = [] }) => {
   const [selectedRecord, setSelectedRecord] = useState(null);
 
@@ -29,10 +28,10 @@ const MedicalRecordsList = ({ records = [] }) => {
   const handleBack = () => {
     setSelectedRecord(null);
   };
-
+ 
   if (selectedRecord) {
     return (
-      <div className=" mt-5 rounded-2xl shadow-2xl border-gray-200 min-h-screen bg-gray-300 py-8">
+      <div className=" mt-5 rounded-2xl shadow-2xl border-gray-200 min-h-screen  bg-gradient-to-br from-indigo-200 to-purple-100 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}

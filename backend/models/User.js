@@ -1,92 +1,131 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
-    {
-        firstName: { type: String, required: true },
-        middleName: { type: String },
-        lastName: { type: String, required: true },
-        email: { 
-            type: String, 
-            required: true, 
-            unique: true, 
-            lowercase: true,
-            match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Email validation
-        },
-        tagNumber: { type: String, unique: true, sparse: true }, // Assigned on registration,
-        
-        password: { type: String, required: true, minlength: [6, 'password must be at least 6 characters long'], select: false },
-        role: { type: String, enum: ["patient", "doctor"], required: true },
-        phone: { type: String, required: true, unique: true },
-        address: { type: String },
-        profileImage: { type: String }, // URL for profile image stored in cloud
-        height: { type: String },
-        weight: { type: String },
-        bodyMassIndex: { type: String },
-        bloodGroup: { type: String },
-        gender: { type: String, enum: ["male", "female", "other"], required: true },
-        dateOfBirth: { type: Date },
-        
-        // Doctor-specific profile (Separate Schema)
-        doctorProfile: { type: mongoose.Schema.Types.ObjectId, ref: "DoctorProfile" },
-
-        // Medical history (Separate Schema)
-        medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "MedicalRecord" }],
-
-        // Medicine reminders (Separate Schema)
-        medicineReminders: [{ type: mongoose.Schema.Types.ObjectId, ref: "MedicineReminder" }],
-        /// access request
-        accessRequests: [
-            {
-                doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Requesting doctor
-                status: { type: String, enum: ["pending", "approved", "denied"], default: "pending" },
-                requestedAt: { type: Date, default: Date.now },
-            },
-        ],
-
-        // Approved Doctors (Doctors who can access this patient's data)
-        approvedDoctors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-
-        pastVisits: [
-            {
-                doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Doctor who treated the patient
-                facility: { type: mongoose.Schema.Types.ObjectId, ref: "HealthcareFacility" }, // Hospital/clinic visited
-                date: { type: Date, default: Date.now },
-                notes: { type: String }, // Treatment summary
-            },
-        ],
-        ratings: [
-            {
-                user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-                rating: { type: Number, min: 1, max: 5, required: true },
-                comment: { type: String },
-                createdAt: { type: Date, default: Date.now },
-            },
-        ],
-        averageRating: { type: Number, default: 0 },
-
-        emailOTP: { type: String },
-        phoneOTP: { type: String },
-        emailOTPExpiry: { type: String },
-        phoneOTPExpiry: { type: String },
-        resetPasswordToken: { type: String },
-        resetPasswordExpires: { type: String },
-
-        isEmailVerified: { type: Boolean, default: false },
-        isPhoneVerified: { type: Boolean, default: false },
-        isVerified: { type: Boolean, default: false },
-       
-        isActive: { type: Boolean, default: true },
-        socketId: { type: String },
+  {
+    firstName: { type: String, required: true },
+    middleName: { type: String },
+    lastName: { type: String, required: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Email validation
     },
-    { timestamps: true }
+    tagNumber: { type: String, unique: true, sparse: true }, // Assigned on registration,
+
+    password: {
+      type: String,
+      required: true,
+      minlength: [6, "password must be at least 6 characters long"],
+      select: false,
+    },
+    role: { type: String, enum: ["patient", "doctor"], required: true },
+    phone: { type: String, required: true, unique: true },
+    address: { type: String },
+    profileImage: { type: String }, // URL for profile image stored in cloud
+    height: { type: String },
+    heightData: [
+      {
+        date: { type: Date, required: true },
+        height: { type: Number, required: true },
+      },
+    ],
+    weight: { type: String },
+    weightData: [
+      {
+        date: { type: Date, required: true },
+        weight: { type: Number, required: true },
+      },
+    ],
+    bodyMassIndex: { type: String },
+    bmiRecords: [
+      {
+        date: { type: Date, required: true },
+        bmi: { type: Number, required: true },
+      },
+    ],
+    bloodGroup: { type: String },
+    gender: { type: String, enum: ["male", "female", "other"], required: true },
+    dateOfBirth: { type: Date },
+
+    // Doctor-specific profile (Separate Schema)
+    doctorProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DoctorProfile",
+    },
+
+    // Medical history (Separate Schema)
+    medicalHistory: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "MedicalRecord" },
+    ],
+
+    // Medicine reminders (Separate Schema)
+    medicineReminders: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "MedicineReminder" },
+    ],
+    /// access request
+    accessRequests: [
+      {
+        doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Requesting doctor
+        status: {
+          type: String,
+          enum: ["pending", "approved", "denied"],
+          default: "pending",
+        },
+        requestedAt: { type: Date, default: Date.now },
+      },
+    ],
+
+    // Approved Doctors (Doctors who can access this patient's data)
+    approvedDoctors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+    pastVisits: [
+      {
+        doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Doctor who treated the patient
+        facility: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "HealthcareFacility",
+        }, // Hospital/clinic visited
+        date: { type: Date, default: Date.now },
+        notes: { type: String }, // Treatment summary
+      },
+    ],
+    ratings: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        rating: { type: Number, min: 1, max: 5, required: true },
+        comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    averageRating: { type: Number, default: 0 },
+
+    emailOTP: { type: String },
+    phoneOTP: { type: String },
+    emailOTPExpiry: { type: String },
+    phoneOTPExpiry: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: String },
+
+    isEmailVerified: { type: Boolean, default: false },
+    isPhoneVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false },
+
+    isActive: { type: Boolean, default: true },
+    socketId: { type: String },
+  },
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
 export default User;
 
-
-
-// user schema 
+// user schema
 // import mongoose from "mongoose";
 
 // const userSchema = new mongoose.Schema(
@@ -94,18 +133,18 @@ export default User;
 //         firstName: { type: String, required: true },
 //         middleName: { type: String },
 //         lastName: { type: String, required: true },
-//         email: { 
-//             type: String, 
-//             required: true, 
-//             unique: true, 
+//         email: {
+//             type: String,
+//             required: true,
+//             unique: true,
 //             lowercase: true,
 //             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Email validation
 //         },
 //         password: { type: String, required: true,minlength:[6,'password must be at least 6 characters long'],select:false },
-//         role: { 
-//             type: String, 
-//             enum: ["patient", "doctor"], 
-//             required: true 
+//         role: {
+//             type: String,
+//             enum: ["patient", "doctor"],
+//             required: true
 //         },
 //         phone: { type: String, required: true, unique: true }, // Ensuring unique phone numbers
 //         address: { type: String },
@@ -115,9 +154,9 @@ export default User;
 //         bodyMassIndex:{type:String},
 //         bloodGroup:{ type:String},
 //         gender:{
-//             type: String, 
-//             enum: ["male", "female", "other"], 
-//             required: true 
+//             type: String,
+//             enum: ["male", "female", "other"],
+//             required: true
 //         },
 //         dateOfBirth: { type: Date },
 //         // Timestamp of registration
@@ -152,7 +191,7 @@ export default User;
 //         phoneOTPExpiry:{type:String},
 //         resetPasswordToken:{type:String},
 //         resetPasswordExpires:{type:String},
-        
+
 //         isEmailVerified: { type: Boolean, default: false },
 //         isPhoneVerified: { type: Boolean, default: false },
 //         isVerified:{ type:Boolean, default:false}, // if email and phone verified then user is verified
