@@ -1,6 +1,135 @@
-import User from "../models/User.js"
+import User from "../models/User.js";
+import express from "express";
+import multer from "multer";
+import mongoose from "mongoose";
 import { calculateBMI } from "../utils/bmiCalculator.js";
 import MedicalRecord from "../models/MedicalRecord.js";
+import cloudinary, { config_cloudinary } from "../config/cloudinary.config.js";
+
+// Initialize Cloudinary configuration
+config_cloudinary();
+
+// Multer storage configuration
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Upload Medical Record
+export const uploadMedicalRecord = async (req, res) => {
+  try {
+    const { condition, recoveryStatus, dateDiagnosed, symptoms, doctor, hospital, medicines, additionalNotes } = req.body;
+    let prescriptionImages = [];
+
+    let parsedSymptoms = [];
+    let parsedMedicines = [];
+    try {
+      parsedSymptoms = JSON.parse(symptoms);
+      parsedMedicines = JSON.parse(medicines);
+    } catch (jsonError) {
+      return res.status(400).json({ message: "Invalid JSON format for symptoms or medicines", error: jsonError.message });
+    }
+
+    // Upload files to Cloudinary if provided
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: "image" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result.secure_url);
+            }
+          );
+          stream.end(file.buffer);
+        })
+      );
+      prescriptionImages = await Promise.all(uploadPromises);
+    }
+
+    // Create and save new medical record
+    const newRecord = new MedicalRecord({
+      condition,
+      recoveryStatus,
+      dateDiagnosed,
+      symptoms: parsedSymptoms,
+      doctor,
+      hospital,
+      medicines: parsedMedicines,
+      additionalNotes,
+      prescriptionImages,
+      createdAt: new Date(),
+    });
+
+    await newRecord.save();
+    res.status(201).json(newRecord);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating medical record", error: error.message });
+  }
+};
+
+// Retrieve All Medical Records
+export const getAllMedicalRecords = async (req, res) => {
+  try {
+    const records = await MedicalRecord.find();
+    res.status(200).json(records);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching medical records", error: error.message });
+  }
+};
+
+// Retrieve a Medical Record by ID
+export const getMedicalRecordById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid medical record ID" });
+    }
+    
+    const record = await MedicalRecord.findById(id);
+    if (!record) return res.status(404).json({ message: "Record not found" });
+    res.status(200).json(record);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching medical record", error: error.message });
+  }
+};
+
+// Update Medical Record
+export const updateMedicalRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid medical record ID" });
+    }
+
+    const updatedRecord = await MedicalRecord.findByIdAndUpdate(id, req.body, { new: true });
+    if (!updatedRecord) return res.status(404).json({ message: "Record not found" });
+    res.status(200).json(updatedRecord);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating medical record", error: error.message });
+  }
+};
+
+// Delete Medical Record
+export const deleteMedicalRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid medical record ID" });
+    }
+    
+    const deletedRecord = await MedicalRecord.findByIdAndDelete(id);
+    if (!deletedRecord) return res.status(404).json({ message: "Record not found" });
+    res.status(200).json({ message: "Record deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting medical record", error: error.message });
+  }
+};
+
 
 
 // Get User Profile
