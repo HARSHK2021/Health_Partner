@@ -18,6 +18,7 @@ import UserSettings from "./pages/UserSettings";
 import AddMedicalRecord from "./components/PatientComponents/AddMedicalRecord";
 import Notification from "./components/PatientComponents/Notification";
 import PatientSetting from "./components/PatientComponents/PatientSetting";
+import FindHospital from "./components/PatientComponents/FindHospital";
 function App() {
   return (
     <>
@@ -49,6 +50,7 @@ function App() {
             <Route path="searchdoctor" element={<DoctorFinder />} />
             <Route path="menstruation" element={<Menstruation />} />
             <Route path="addmedicalrecord" element={<AddMedicalRecord />} />
+            <Route path="findhospital" element={<FindHospital />} />
             <Route path="notification" element={<Notification />} />
             <Route path="user-settings" element={<PatientSetting />} />
 
