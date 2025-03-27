@@ -52,7 +52,7 @@ export default function VerifyPage() {
         }
 
         let endpoint = "";
-        if (type === "user") {
+        if (type === "user" || type ==="patient" || type==="doctor") {
           endpoint = `${import.meta.env.VITE_BASE_URL}/auth/getuser/${userID}`;
         } else if (type === "facility") {
           endpoint = `${import.meta.env.VITE_BASE_URL}/auth/getfacility/${userID}`;
@@ -61,10 +61,13 @@ export default function VerifyPage() {
         if (endpoint) {
           const response = await axios.get(endpoint);
           const data = response.data;
+          console.log(response)
           console.log("User data fetched by verification page:", response);
           setUser(data.user)
+        
+          
 
-          if (type === "user") {
+          if (type === "user" || type ==="patient" || type==="doctor") {
             setEmail(data.user?.email || "");
             setPhone(data.user?.phone || "");
            

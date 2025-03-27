@@ -15,25 +15,55 @@ const upload = multer({ storage });
 
 // Upload Medical Record
 export const uploadMedicalRecord = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
-    const { condition, recoveryStatus, dateDiagnosed, symptoms, doctor, hospital, medicines, additionalNotes } = req.body;
-    let prescriptionImages = [];
+     if(!req.user || !req.user._id){
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(401).json({ message: "User not authenticated" });
+     }
+     const userId = req.user._id;
+    const { 
+      condition, 
+      recoveryStatus, 
+      dateDiagnosed, 
+      symptoms, 
+      doctor, 
+      hospital, 
+      medicines, 
+      additionalNotes 
+    } = req.body;
 
+    // Initialize arrays for files
+    let prescriptionImages = [];
+    let medicalReports = [];
+
+    // Parse symptoms and medicines (they come as JSON strings from the frontend)
     let parsedSymptoms = [];
     let parsedMedicines = [];
+    
     try {
-      parsedSymptoms = JSON.parse(symptoms);
-      parsedMedicines = JSON.parse(medicines);
+      parsedSymptoms = typeof symptoms === 'string' ? JSON.parse(symptoms) : symptoms;
+      parsedMedicines = typeof medicines === 'string' ? JSON.parse(medicines) : medicines;
     } catch (jsonError) {
-      return res.status(400).json({ message: "Invalid JSON format for symptoms or medicines", error: jsonError.message });
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ 
+        message: "Invalid format for symptoms or medicines", 
+        error: jsonError.message 
+      });
     }
 
-    // Upload files to Cloudinary if provided
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) =>
+    // Helper function to upload files to Cloudinary
+    const uploadToCloudinary = async (files) => {
+      if (!files || files.length === 0) return [];
+      
+      const uploadPromises = files.map((file) => 
         new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { resource_type: "image" },
+            { resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw' },
             (error, result) => {
               if (error) reject(error);
               else resolve(result.secure_url);
@@ -42,27 +72,63 @@ export const uploadMedicalRecord = async (req, res) => {
           stream.end(file.buffer);
         })
       );
-      prescriptionImages = await Promise.all(uploadPromises);
+      
+      return await Promise.all(uploadPromises);
+    };
+
+    // Handle file uploads if files are present
+    if (req.files) {
+      // Separate prescription images from medical reports
+      const prescriptionFiles = req.files.filter(file => 
+        file.fieldname === 'prescriptionImages'
+      );
+      const medicalReportFiles = req.files.filter(file => 
+        file.fieldname === 'medicalReports'
+      );
+
+      // Upload files in parallel
+      [prescriptionImages, medicalReports] = await Promise.all([
+        uploadToCloudinary(prescriptionFiles),
+        uploadToCloudinary(medicalReportFiles)
+      ]);
     }
 
     // Create and save new medical record
     const newRecord = new MedicalRecord({
+      user: userId,
       condition,
-      recoveryStatus,
-      dateDiagnosed,
+      recoveryStatus:recoveryStatus || 'ongoing',
+      dateDiagnosed: dateDiagnosed || new Date(),
       symptoms: parsedSymptoms,
-      doctor,
-      hospital,
+      doctor: doctor || undefined, // Store as undefined if empty
+      hospital: hospital || undefined,
       medicines: parsedMedicines,
-      additionalNotes,
-      prescriptionImages,
+      additionalNotes: additionalNotes || undefined,
+      prescriptionImages: prescriptionImages.length > 0 ? prescriptionImages : undefined,
+      medicalReports: medicalReports.length > 0 ? medicalReports : undefined,
       createdAt: new Date(),
     });
-
-    await newRecord.save();
-    res.status(201).json(newRecord);
+    const savedRecord = await newRecord.save({ session });
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { medicalHistory: savedRecord._id } },
+      { new: true, session }
+    );
+    await session.commitTransaction();
+    session.endSession();
+    res.status(200).json({
+      success: true,
+      message: "Medical record created successfully",
+      record: savedRecord
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error creating medical record", error: error.message });
+    await session.abortTransaction();
+    session.endSession();
+    console.error("Error creating medical record:", error);
+    res.status(500).json({ 
+      message: "Error creating medical record", 
+      error: error.message 
+    });
   }
 };
 

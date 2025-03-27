@@ -1,5 +1,10 @@
 import User from "../models/User.js"
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
 ////// controller for function common for both Patient and doctor 
 import axios from "axios";
 /// get user by uerID 
@@ -61,3 +66,10 @@ export const findNearbyHospitals = async (req, res) => {
       res.status(500).json({ message: "Error finding nearby hospitals", error: error.message });
   }
 };
+
+
+
+
+
+
+

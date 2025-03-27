@@ -1,9 +1,9 @@
 import express from  'express';
 const router = express.Router();
-import { getUserProfile, updateUserProfile} from "../controllers/patientController.js"
+import { getUserProfile, updateUserProfile, uploadMedicalRecord} from "../controllers/patientController.js"
 import protectUser from "../middlewares/protectUser.js"
 import { 
-  uploadMedicalRecord, 
+
   getAllMedicalRecords, 
   getMedicalRecordById, 
   updateMedicalRecord, 
@@ -11,6 +11,7 @@ import {
 } from "../controllers/patientController.js";
 
 import multer from 'multer';
+import { getCurrentPhase, getCycleHistory, recordPeriodStart } from '../controllers/menstruationController.js';
 const storage = multer.memoryStorage();
 const load = multer({ storage });
 
@@ -19,12 +20,13 @@ router.get("/get-profile",protectUser,getUserProfile);
 router.post("/update-profile",protectUser,updateUserProfile);
 
 //Medical Records
-router.post("/medical-records", protectUser, load.array("images", 5), uploadMedicalRecord);
+router.post("/medical-records", protectUser,uploadMedicalRecord );
 router.get("/medical-records", protectUser, getAllMedicalRecords);
 router.get("/medical-records/:id", protectUser, getMedicalRecordById);
 router.patch("/medical-records/:id", protectUser, updateMedicalRecord);
 router.delete("/medical-records/:id", protectUser, deleteMedicalRecord);
 
-
-
+router.post("/addmen",protectUser,recordPeriodStart);
+router.get("/tam",protectUser,getCurrentPhase);
+router.get("/cycle",protectUser,getCycleHistory)
 export default router;

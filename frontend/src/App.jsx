@@ -19,6 +19,8 @@ import AddMedicalRecord from "./components/PatientComponents/AddMedicalRecord";
 import Notification from "./components/PatientComponents/Notification";
 import PatientSetting from "./components/PatientComponents/PatientSetting";
 import FindHospital from "./components/PatientComponents/FindHospital";
+
+import Periods from "./components/Menstruation/Periods";
 function App() {
   return (
     <>
@@ -35,7 +37,7 @@ function App() {
           <Route path="/dashboard/:" element={<Dashboard />} />
 
           {/* User Settings */}
-          <Route path="/user-settings" element={<UserSettings />} />
+          
 
           <Route
             path="/patient-dashboard/*"
@@ -59,6 +61,7 @@ function App() {
 
 
           <Route path="set" element={<UserSettings />} />
+          <Route path="periods" element={<Periods />} />
         </Routes>
       </Router>
     </>
