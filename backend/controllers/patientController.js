@@ -17,7 +17,7 @@
 // export const uploadMedicalRecord = async (req, res) => {
 //   const session = await mongoose.startSession();
 //   session.startTransaction();
-  
+
 //   try {
 //      if(!req.user || !req.user._id){
 //       await session.abortTransaction();
@@ -25,15 +25,15 @@
 //       return res.status(401).json({ message: "User not authenticated" });
 //      }
 //      const userId = req.user._id;
-//     const { 
-//       condition, 
-//       recoveryStatus, 
-//       dateDiagnosed, 
-//       symptoms, 
-//       doctor, 
-//       hospital, 
-//       medicines, 
-//       additionalNotes 
+//     const {
+//       condition,
+//       recoveryStatus,
+//       dateDiagnosed,
+//       symptoms,
+//       doctor,
+//       hospital,
+//       medicines,
+//       additionalNotes
 //     } = req.body;
 
 //     // Initialize arrays for files
@@ -43,24 +43,24 @@
 //     // Parse symptoms and medicines (they come as JSON strings from the frontend)
 //     let parsedSymptoms = [];
 //     let parsedMedicines = [];
-    
+
 //     try {
 //       parsedSymptoms = typeof symptoms === 'string' ? JSON.parse(symptoms) : symptoms;
 //       parsedMedicines = typeof medicines === 'string' ? JSON.parse(medicines) : medicines;
 //     } catch (jsonError) {
 //       await session.abortTransaction();
 //       session.endSession();
-//       return res.status(400).json({ 
-//         message: "Invalid format for symptoms or medicines", 
-//         error: jsonError.message 
+//       return res.status(400).json({
+//         message: "Invalid format for symptoms or medicines",
+//         error: jsonError.message
 //       });
 //     }
 
 //     // Helper function to upload files to Cloudinary
 //     const uploadToCloudinary = async (files) => {
 //       if (!files || files.length === 0) return [];
-      
-//       const uploadPromises = files.map((file) => 
+
+//       const uploadPromises = files.map((file) =>
 //         new Promise((resolve, reject) => {
 //           const stream = cloudinary.uploader.upload_stream(
 //             { resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw' },
@@ -72,17 +72,17 @@
 //           stream.end(file.buffer);
 //         })
 //       );
-      
+
 //       return await Promise.all(uploadPromises);
 //     };
 
 //     // Handle file uploads if files are present
 //     if (req.files) {
 //       // Separate prescription images from medical reports
-//       const prescriptionFiles = req.files.filter(file => 
+//       const prescriptionFiles = req.files.filter(file =>
 //         file.fieldname === 'prescriptionImages'
 //       );
-//       const medicalReportFiles = req.files.filter(file => 
+//       const medicalReportFiles = req.files.filter(file =>
 //         file.fieldname === 'medicalReports'
 //       );
 
@@ -125,9 +125,9 @@
 //     await session.abortTransaction();
 //     session.endSession();
 //     console.error("Error creating medical record:", error);
-//     res.status(500).json({ 
-//       message: "Error creating medical record", 
-//       error: error.message 
+//     res.status(500).json({
+//       message: "Error creating medical record",
+//       error: error.message
 //     });
 //   }
 // };
@@ -146,12 +146,12 @@
 // export const getMedicalRecordById = async (req, res) => {
 //   try {
 //     const { id } = req.params;
-    
+
 //     // Validate MongoDB ObjectId
 //     if (!mongoose.Types.ObjectId.isValid(id)) {
 //       return res.status(400).json({ message: "Invalid medical record ID" });
 //     }
-    
+
 //     const record = await MedicalRecord.findById(id);
 //     if (!record) return res.status(404).json({ message: "Record not found" });
 //     res.status(200).json(record);
@@ -182,12 +182,12 @@
 // export const deleteMedicalRecord = async (req, res) => {
 //   try {
 //     const { id } = req.params;
-    
+
 //     // Validate MongoDB ObjectId
 //     if (!mongoose.Types.ObjectId.isValid(id)) {
 //       return res.status(400).json({ message: "Invalid medical record ID" });
 //     }
-    
+
 //     const deletedRecord = await MedicalRecord.findByIdAndDelete(id);
 //     if (!deletedRecord) return res.status(404).json({ message: "Record not found" });
 //     res.status(200).json({ message: "Record deleted successfully" });
@@ -195,8 +195,6 @@
 //     res.status(500).json({ message: "Error deleting medical record", error: error.message });
 //   }
 // };
-
-
 
 // // Get User Profile
 // export const getUserProfile = async (req, res) => {
@@ -247,7 +245,6 @@
 //       { $set: updateFields, ...updateOperations },
 //       { new: true, runValidators: true }
 //     );
-        
 
 //         if (!updatedUser) {
 //             return res.status(404).json({ message: "User not found" });
@@ -259,7 +256,6 @@
 //     }
 // };
 
-
 // // ➤ **2️⃣ Retrieve All Medical History for a User**
 // export const getMedicalHistory = async (req, res) => {
 //     try {
@@ -270,9 +266,6 @@
 //         res.status(500).json({ message: "Error retrieving medical history", error: error.message });
 //     }
 // };
-
-
-
 
 // // Get Approved Doctors
 // export const getApprovedDoctors = async (req, res) => {
@@ -291,8 +284,6 @@
 //         res.status(500).json({ message: "Error fetching approved doctors", error: error.message });
 //     }
 // };
-
-
 
 // // Revoke Doctor Access
 // export const revokeDoctorAccess = async (req, res) => {
@@ -316,9 +307,6 @@
 //         res.status(500).json({ message: "Error revoking doctor access", error: error.message });
 //     }
 // };
-
-
-
 
 import User from "../models/User.js";
 import express from "express";
@@ -344,8 +332,8 @@ const upload = multer({ storage });
 //     // Validate recoveryStatus based on form values (lowercase)
 //     const validRecoveryStatuses = ["ongoing", "recovered", "critical"];
 //     if (!validRecoveryStatuses.includes(recoveryStatus)) {
-//       return res.status(400).json({ 
-//         message: `Invalid recoveryStatus value. Allowed values are: ${validRecoveryStatuses.join(", ")}` 
+//       return res.status(400).json({
+//         message: `Invalid recoveryStatus value. Allowed values are: ${validRecoveryStatuses.join(", ")}`
 //       });
 //     }
 
@@ -355,9 +343,9 @@ const upload = multer({ storage });
 //       parsedSymptoms = Array.isArray(symptoms) ? symptoms : JSON.parse(symptoms);
 //       parsedMedicines = Array.isArray(medicines) ? medicines : JSON.parse(medicines);
 //     } catch (jsonError) {
-//       return res.status(400).json({ 
-//         message: "Invalid JSON format for symptoms or medicines", 
-//         error: jsonError.message 
+//       return res.status(400).json({
+//         message: "Invalid JSON format for symptoms or medicines",
+//         error: jsonError.message
 //       });
 //     }
 
@@ -418,28 +406,49 @@ const upload = multer({ storage });
 //   }
 // };
 export const uploadMedicalRecord = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const { condition, recoveryStatus, dateDiagnosed, symptoms, medicines, additionalNotes } = req.body;
+    if (!req.user || !req.user._id) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+    const userId = req.user._id;
+    const {
+      condition,
+      recoveryStatus,
+      dateDiagnosed,
+      symptoms,
+      medicines,
+      additionalNotes,
+    } = req.body;
     let prescriptionImages = [];
     let medicalReports = [];
 
     // Validate recoveryStatus based on form values (lowercase)
     const validRecoveryStatuses = ["ongoing", "recovered", "critical"];
     if (!validRecoveryStatuses.includes(recoveryStatus)) {
-      return res.status(400).json({ 
-        message: `Invalid recoveryStatus value. Allowed values are: ${validRecoveryStatuses.join(", ")}` 
+      return res.status(400).json({
+        message: `Invalid recoveryStatus value. Allowed values are: ${validRecoveryStatuses.join(
+          ", "
+        )}`,
       });
     }
 
     let parsedSymptoms = [];
     let parsedMedicines = [];
     try {
-      parsedSymptoms = Array.isArray(symptoms) ? symptoms : JSON.parse(symptoms);
-      parsedMedicines = Array.isArray(medicines) ? medicines : JSON.parse(medicines);
+      parsedSymptoms = Array.isArray(symptoms)
+        ? symptoms
+        : JSON.parse(symptoms);
+      parsedMedicines = Array.isArray(medicines)
+        ? medicines
+        : JSON.parse(medicines);
     } catch (jsonError) {
-      return res.status(400).json({ 
-        message: "Invalid JSON format for symptoms or medicines", 
-        error: jsonError.message 
+      return res.status(400).json({
+        message: "Invalid JSON format for symptoms or medicines",
+        error: jsonError.message,
       });
     }
 
@@ -463,7 +472,7 @@ export const uploadMedicalRecord = async (req, res) => {
 
     // Upload prescription images if provided
     if (req.files && req.files.prescriptionImages) {
-      const uploadPrescriptions = req.files.prescriptionImages.map(file =>
+      const uploadPrescriptions = req.files.prescriptionImages.map((file) =>
         uploadToCloudinary(file, { resource_type: "image" })
       );
       prescriptionImages = await Promise.all(uploadPrescriptions);
@@ -471,7 +480,7 @@ export const uploadMedicalRecord = async (req, res) => {
 
     // Upload medical reports if provided
     if (req.files && req.files.medicalReports) {
-      const uploadReports = req.files.medicalReports.map(file =>
+      const uploadReports = req.files.medicalReports.map((file) =>
         uploadToCloudinary(file, {
           resource_type: file.mimetype === "application/pdf" ? "raw" : "image",
         })
@@ -497,7 +506,9 @@ export const uploadMedicalRecord = async (req, res) => {
     res.status(201).json(newRecord);
   } catch (error) {
     console.error("Error creating medical record:", error);
-    res.status(500).json({ message: "Error creating medical record", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error creating medical record", error: error.message });
   }
 };
 
@@ -507,7 +518,12 @@ export const getAllMedicalRecords = async (req, res) => {
     const records = await MedicalRecord.find();
     res.status(200).json(records);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching medical records", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching medical records",
+        error: error.message,
+      });
   }
 };
 
@@ -515,17 +531,19 @@ export const getAllMedicalRecords = async (req, res) => {
 export const getMedicalRecordById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid medical record ID" });
     }
-    
+
     const record = await MedicalRecord.findById(id);
     if (!record) return res.status(404).json({ message: "Record not found" });
     res.status(200).json(record);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching medical record", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching medical record", error: error.message });
   }
 };
 
@@ -539,11 +557,16 @@ export const updateMedicalRecord = async (req, res) => {
       return res.status(400).json({ message: "Invalid medical record ID" });
     }
 
-    const updatedRecord = await MedicalRecord.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updatedRecord) return res.status(404).json({ message: "Record not found" });
+    const updatedRecord = await MedicalRecord.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!updatedRecord)
+      return res.status(404).json({ message: "Record not found" });
     res.status(200).json(updatedRecord);
   } catch (error) {
-    res.status(500).json({ message: "Error updating medical record", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating medical record", error: error.message });
   }
 };
 
@@ -551,39 +574,39 @@ export const updateMedicalRecord = async (req, res) => {
 export const deleteMedicalRecord = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid medical record ID" });
     }
-    
+
     const deletedRecord = await MedicalRecord.findByIdAndDelete(id);
-    if (!deletedRecord) return res.status(404).json({ message: "Record not found" });
+    if (!deletedRecord)
+      return res.status(404).json({ message: "Record not found" });
     res.status(200).json({ message: "Record deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting medical record", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting medical record", error: error.message });
   }
 };
 
-
-
-
 // Get User Profile
 export const getUserProfile = async (req, res) => {
-    console.log("user from ",req.user)
-        res.status(200).json(req.user)
-}
+  console.log("user from ", req.user);
+  res.status(200).json(req.user);
+};
 
 // Update Profile (Includes height & weight)
 export const updateUserProfile = async (req, res) => {
-    try {
+  try {
+    const userId = req.user._id;
+    const { address, profileImage, height, weight, bloodGroup, dateOfBirth } =
+      req.body;
+    console.log("aagay ayaha");
+    const user = req.user;
 
-        const userId = req.user._id;
-        const { address, profileImage, height, weight, bloodGroup, dateOfBirth } = req.body;
-        console.log("aagay ayaha")
-        const user = req.user;
-
-         // Create an empty object to store updates
+    // Create an empty object to store updates
     let updateFields = {};
     let updateOperations = {}; // For pushing historical data
     const currentDate = new Date();
@@ -598,7 +621,7 @@ export const updateUserProfile = async (req, res) => {
     // If both height and weight are provided, calculate and store BMI
     if (weight && height) {
       BMI = calculateBMI(weight, height);
-      console.log("BMI" , BMI)
+      console.log("BMI", BMI);
 
       updateFields.height = height; // Update latest height
       updateFields.weight = weight; // Update latest weight
@@ -617,74 +640,89 @@ export const updateUserProfile = async (req, res) => {
       { $set: updateFields, ...updateOperations },
       { new: true, runValidators: true }
     );
-        
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        return res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-};
 
+    return res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 // ➤ **2️⃣ Retrieve All Medical History for a User**
 export const getMedicalHistory = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const records = await MedicalRecord.find({ user: userId }).populate("doctor hospital pharmacy");
-        res.status(200).json(records);
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving medical history", error: error.message });
-    }
+  try {
+    const userId = req.user.id;
+    const records = await MedicalRecord.find({ user: userId }).populate(
+      "doctor hospital pharmacy"
+    );
+    res.status(200).json(records);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error retrieving medical history",
+        error: error.message,
+      });
+  }
 };
-
-
-
 
 // Get Approved Doctors
 export const getApprovedDoctors = async (req, res) => {
-    try {
-        const userId = req.user.id; // Patient's ID from authentication
+  try {
+    const userId = req.user.id; // Patient's ID from authentication
 
-        // Fetch user with populated doctor details
-        const user = await User.findById(userId).populate("approvedDoctors", "name email phone");
+    // Fetch user with populated doctor details
+    const user = await User.findById(userId).populate(
+      "approvedDoctors",
+      "name email phone"
+    );
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.status(200).json({ approvedDoctors: user.approvedDoctors });
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching approved doctors", error: error.message });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    res.status(200).json({ approvedDoctors: user.approvedDoctors });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error fetching approved doctors",
+        error: error.message,
+      });
+  }
 };
-
-
 
 // Revoke Doctor Access
 export const revokeDoctorAccess = async (req, res) => {
-    try {
-        const userId = req.user.id; // Patient's ID
-        const { doctorId } = req.body; // Doctor ID to be removed
+  try {
+    const userId = req.user.id; // Patient's ID
+    const { doctorId } = req.body; // Doctor ID to be removed
 
-        // Find patient and update the approvedDoctors array
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { $pull: { approvedDoctors: doctorId } }, // Remove doctor
-            { new: true }
-        );
+    // Find patient and update the approvedDoctors array
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { approvedDoctors: doctorId } }, // Remove doctor
+      { new: true }
+    );
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.status(200).json({ message: "Doctor access revoked successfully", approvedDoctors: updatedUser.approvedDoctors });
-    } catch (error) {
-        res.status(500).json({ message: "Error revoking doctor access", error: error.message });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    res
+      .status(200)
+      .json({
+        message: "Doctor access revoked successfully",
+        approvedDoctors: updatedUser.approvedDoctors,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error revoking doctor access", error: error.message });
+  }
 };
-
-
