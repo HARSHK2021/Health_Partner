@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Plus, Trash2,  AlertCircle, CogIcon, UploadIcon } from "lucide-react"
+import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
+import axios from 'axios'
+import { UserDataContext } from "../../context/UserContext";
 
 const AddMedicalRecord = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +28,8 @@ const AddMedicalRecord = () => {
     prescriptionImages: [],
     medicalReports: []
   });
-
+  const token = localStorage.getItem("token"); 
+  const { user, setUser } = React.useContext(UserDataContext);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -112,17 +116,33 @@ const AddMedicalRecord = () => {
     }
 
     try {
+     
       const formattedData = {
         ...formData,
         symptoms: formData.symptoms.split(',').map(s => s.trim()),
         medicines: formData.medicines.map(medicine => ({
           ...medicine,
           takenAt: []
-        }))
+        })),
+        prescriptionImages: selectedFiles.prescriptionImages,  // Add this line
+        medicalReports: selectedFiles.medicalReports          // Add this line
       };
 
       console.log('Submitting data:', formattedData);
+    
       // Add your API call here
+      const response= await axios.post(CMH_ROUTES.ADD_MEDICAL_RECORD,formattedData,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("response from  update",response)
+        if (response.status!=200) {
+        throw new Error("Failed to save changes.");
+      }
+      console.log("Changes saved successfully.");
+     
       
       setFormData({
         condition: '',

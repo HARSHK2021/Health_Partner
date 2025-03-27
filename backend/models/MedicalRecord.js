@@ -18,9 +18,9 @@ const medicalRecordSchema = new mongoose.Schema(
             },
         ],
 
-        doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Doctor who diagnosed
-        hospital: { type: mongoose.Schema.Types.ObjectId, ref: "HealthcareFacility" }, // If patient visited a hospital
-        pharmacy: { type: mongoose.Schema.Types.ObjectId, ref: "HealthcareFacility" }, // If patient got medicines from a pharmacy
+        doctor: { type: String }, // Doctor who diagnosed
+        hospital: { type: String }, // If patient visited a hospital
+        pharmacy: { type: String }, // If patient got medicines from a pharmacy
         prescriptionImages: [{ type: String }], // URLs for prescription images (stored in cloud)
         medicalReports: [{ type: String }], // URLs for medical reports
         additionalNotes: { type: String }, // Extra notes about condition/treatment

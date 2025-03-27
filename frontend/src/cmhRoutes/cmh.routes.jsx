@@ -14,4 +14,5 @@ export const CMH_ROUTES = {
     REQUEST_EMAIL_OTP: `${host}/auth/request-email-otp`,
     VERIFY_EMAIL_OTP: `${host}/auth/verify-email-otp`,
     EDIT_PROFILE: `${host}/patient/update-profile`,
+    ADD_MEDICAL_RECORD: `${host}/patient/medical-records `,
 }

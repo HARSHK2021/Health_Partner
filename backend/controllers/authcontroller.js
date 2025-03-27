@@ -225,15 +225,17 @@ export const signout = async (req, res, next) => {
 // Request Email OTP
 export const requestEmailOTP = async (req, res) => {
   try {
+    console.log("aagay yaha")
     const { email, userType } = req.body;
     console.log(userType);
 
     if (!email || !userType) {
       return res.status(400).json({ message: "Email and userType are required" });
     }
+    
 
     // Select correct model based on userType
-    const Model = userType === "user" ? User : HealthcareFacility;
+    const Model = userType === "user" || "patient || doctor" ? User : HealthcareFacility;
     const user = await Model.findOne({ email });
 
     if (!user) return res.status(400).json({ message: "User not found" });
@@ -267,7 +269,7 @@ export const verifyEmailOTP = async (req, res) => {
       return res.status(400).json({ message: "Email, OTP, and userType are required" });
     }
 
-    const Model = userType === "user" ? User : HealthcareFacility;
+    const Model = userType === "user" || "patient "|| "doctor" ? User : HealthcareFacility;
     const user = await Model.findOne({ email });
 
     if (!user) return res.status(400).json({ message: "User not found" });
@@ -306,7 +308,7 @@ export const requestPhoneOTP = async (req, res) => {
       return res.status(400).json({ message: "Phone number and userType are required" });
     }
 
-    const Model = userType === "user" ? User : HealthcareFacility;
+    const Model = userType === "user" || "patient " || "doctor" ? User : HealthcareFacility;
     const user = await Model.findOne({ phone });
 
     if (!user) return res.status(400).json({ message: "No user found with this number" });
@@ -340,7 +342,7 @@ export const verifyPhoneOTP = async (req, res) => {
       return res.status(400).json({ message: "Phone, OTP, and userType are required" });
     }
 
-    const Model = userType === "user" ? User : HealthcareFacility;
+    const Model = userType === "user" || "patient " || "doctor" ? User : HealthcareFacility;
     const user = await Model.findOne({ phone });
 
     if (!user) return res.status(400).json({ message: "User not found" });
