@@ -8,6 +8,7 @@ import patientRoutes from "./routes/patientRoutes.js"
 import http from "http"
 import { initializeSocket } from './socket.js'
 import "./utils/cronJobs.js";
+import doctorRoutes from "./routes/doctorRoutes.js"
 
 dotenv.config();
 connectDB();
@@ -24,7 +25,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/access", accessRoutes);
-app.use("/api/v1/patient",patientRoutes)
+app.use("/api/v1/patient",patientRoutes);
+app.use("/api/v1/doctor",doctorRoutes)
 
 const PORT= process.env.PORT || 4000;
 server.listen(PORT,()=> console.log(` Server running on port ${PORT}`))
