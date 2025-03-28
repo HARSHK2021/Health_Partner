@@ -190,9 +190,15 @@ export default function VerifyPage() {
   useEffect(() => {
     if (emailVerified && phoneVerified) {
      console.log(" redirecting to dashboard of")
-     console.log("this user is consoled when ridrecting ",user)
+     console.log("this user is consoled when redirecting ",user)
      if(user.role =="patient"){
       navigate(`/patient-dashboard/`);
+     }
+     if(user.role =="doctor"){
+      navigate(`/doctor-dashboard/`);
+     }
+     if(user.role =="facility"){
+      navigate(`/facility-dashboard/`);
      }
     }
   }, [emailVerified, phoneVerified]);

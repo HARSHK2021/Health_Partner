@@ -93,7 +93,6 @@ const userSchema = new mongoose.Schema(
     ],
     //menstruation part 
     averageCycleLength: { type: Number, default: 28 },
-    averagePeriodLength: { type: Number, default: 5 },
     lastPeriodDate: { type: Date },
     nextPredictedPeriod: { type: Date },
     cycleHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cycle' }],
@@ -101,7 +100,7 @@ const userSchema = new mongoose.Schema(
       typicalSymptoms: [String],
       flowLevel: { type: String, enum: ['light', 'medium', 'heavy'] }
     },
-    ////////////////////
+       ////////////////////
     ratings: [
       {
         user: {

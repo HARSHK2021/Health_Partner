@@ -12,15 +12,18 @@ import Dashboard from "./pages/Dashboard";
 import PatientDashboard from "./pages/PatientDashboard";
 import PatientProtectedWrapper from "./Wrapper/PatientProtectedWrapper";
 import DoctorFinder from "./components/PatientComponents/DoctorFinder";
-import Menstruation  from "./components/PatientComponents/Menstruation"
+import Menstruation  from "./components/Menstruation/Menstruation"
 import MyHealth from "./components/PatientComponents/MyHealth";
 import UserSettings from "./pages/UserSettings";
 import AddMedicalRecord from "./components/PatientComponents/AddMedicalRecord";
 import Notification from "./components/PatientComponents/Notification";
 import PatientSetting from "./components/PatientComponents/PatientSetting";
 import FindHospital from "./components/PatientComponents/FindHospital";
+import DoctorProtectedWrapper from "./Wrapper/DoctorProtectedWrapper";
+import DoctorDashboard from "./pages/DoctorDashboard";
 
-import Periods from "./components/Menstruation/Periods";
+
+
 function App() {
   return (
     <>
@@ -60,8 +63,37 @@ function App() {
 
 
 
-          <Route path="set" element={<UserSettings />} />
-          <Route path="periods" element={<Periods />} />
+
+
+
+          {/* doctor routes  */}
+          
+          <Route
+            path="/doctor-dashboard/*"
+            element={
+              <DoctorProtectedWrapper>
+                <DoctorDashboard />
+              </DoctorProtectedWrapper>
+            }
+          >
+            <Route index element={<MyHealth />} />
+            <Route path="myhealth" element={<MyHealth />} />
+            <Route path="menstruation" element={<Menstruation />} />
+            <Route path="addmedicalrecord" element={<AddMedicalRecord />} />
+            <Route path="findhospital" element={<FindHospital />} />
+            <Route path="notification" element={<Notification />} />
+            <Route path="user-settings" element={<PatientSetting />} />
+
+          </Route>
+
+
+        
+
+
+
+          
+          
+          
         </Routes>
       </Router>
     </>
