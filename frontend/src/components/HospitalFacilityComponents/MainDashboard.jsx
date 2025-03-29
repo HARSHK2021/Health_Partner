@@ -41,7 +41,8 @@ export default function HospitalDashboard() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar role={role} />
+      {/* <Sidebar role={role} /> */}
+      <Sidebar role="facilty" />
 
       <main className="flex-1 bg-gray-50 p-8">
         <div className="mb-8 flex justify-between items-center">
