@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
+import axios from "axios";
 import {
   Clock,
   Calendar,
@@ -10,14 +11,62 @@ import {
   ArrowLeft,
   ScanHeart,
   Stethoscope,
+  Loader,
 } from "lucide-react";
+import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
 
-const MedicalRecordsList = ({ records = [] }) => {
+const MedicalRecordsList = () => {
+  const [records, setRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchMedicalRecords = async () => {
+      try {
+        setLoading(true);
+        // Get token from localStorage
+        const token = localStorage.getItem("token");
+        const id = localStorage.getItem("id");
+       
+        
+        if (!id) {
+          throw new Error("Ran Into an error while fetching your records");
+        }
+
+        if (!token) {
+          throw new Error("Authentication required");
+        }
+
+        //get specific
+
+        // Fetch medical records for the authenticated user
+        const response = await axios.get(CMH_ROUTES.GET_MEDICAL_RECORD.replace(':id', id), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setRecords(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching medical records:", err);
+        setError(
+          err.response?.data?.message || "Failed to fetch medical records"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedicalRecords();
+  }, []);
 
   const getStatusColor = (status) => {
     return status === "recovered"
       ? "bg-green-100 text-green-800"
+      : status === "critical"
+      ? "bg-red-100 text-red-800"
       : "bg-yellow-100 text-yellow-800";
   };
 
@@ -28,7 +77,38 @@ const MedicalRecordsList = ({ records = [] }) => {
   const handleBack = () => {
     setSelectedRecord(null);
   };
- 
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-700">Loading medical records...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (selectedRecord) {
     return (
       <div className=" mt-5 rounded-2xl shadow-2xl border-gray-200 min-h-screen  bg-gradient-to-br from-indigo-200 to-purple-100 py-8">
@@ -201,7 +281,7 @@ const MedicalRecordsList = ({ records = [] }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {records.map((record, index) => (
             <div
-              key={index}
+              key={record._id || index}
               className="bg-gray-100 rounded-xl shadow-2xl border border-gray-300 overflow-hidden cursor-pointer transform transition-transform hover:scale-105"
               onClick={() => handleCardClick(record)}
             >
@@ -281,7 +361,13 @@ const MedicalRecordsList = ({ records = [] }) => {
 
         {records.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No medical records found</p>
+            <div className="text-7xl mb-4">📋</div>
+            <h3 className="text-xl font-medium text-gray-700 mb-2">
+              No records yet
+            </h3>
+            <p className="text-gray-500">
+              You haven't added any medical records yet.
+            </p>
           </div>
         )}
       </div>
