@@ -41,10 +41,14 @@ const MedicalRecordsList = () => {
         //get specific
 
         // Fetch medical records for the authenticated user
-        const response = await axios.get(CMH_ROUTES.GET_MEDICAL_RECORD.replace(':id', id), {
+        const response = await axios.get(`${CMH_ROUTES.GET_MEDICAL_RECORD_BY_ID}/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            // id: id,
           },
+          // params: {
+          //   id: id,
+          // },
         });
 
         setRecords(response.data);
@@ -91,23 +95,23 @@ const MedicalRecordsList = () => {
   }
 
   // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  //       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+  //         <div className="text-red-500 text-5xl mb-4">⚠️</div>
+  //         <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
+  //         <p className="text-gray-600 mb-6">{error}</p>
+  //         <button
+  //           onClick={() => window.location.reload()}
+  //           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+  //         >
+  //           Try Again
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (selectedRecord) {
     return (

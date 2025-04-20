@@ -14,5 +14,5 @@ export const CMH_ROUTES = {
     EDIT_PROFILE: `${host}/patient/update-profile`,
     ADD_MEDICAL_RECORD: `${host}/patient/upload-medical-records `,
     GET_MEDICAL_RECORD: `${host}/patient/medical-records/`,
-    GET_MEDICAL_RECORD_BY_ID: `${host}/patient/medical-records/:id`,
+    GET_MEDICAL_RECORD_BY_ID: `${host}/patient/medical-records/user`,
 }
