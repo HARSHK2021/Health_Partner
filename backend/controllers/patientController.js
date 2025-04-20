@@ -20,20 +20,23 @@ export const uploadMedicalRecord = async (req, res) => {
     }
 
     const userId = req.user._id;
-    const { condition, recoveryStatus, dateDiagnosed, additionalNotes } = req.body;
-    
+    const { condition, recoveryStatus, dateDiagnosed, additionalNotes } =
+      req.body;
+
     // Handle symptoms and medicines with safer parsing
     let symptomsInput = req.body.symptoms || "[]";
     let medicinesInput = req.body.medicines || "[]";
-    
+
     let prescriptionImages = [];
     let medicalReports = [];
-    
+
     // Validate recoveryStatus
     const validRecoveryStatuses = ["ongoing", "recovered", "critical"];
     if (!validRecoveryStatuses.includes(recoveryStatus)) {
       return res.status(400).json({
-        message: `Invalid recoveryStatus value. Allowed values: ${validRecoveryStatuses.join(", ")}`
+        message: `Invalid recoveryStatus value. Allowed values: ${validRecoveryStatuses.join(
+          ", "
+        )}`,
       });
     }
 
@@ -41,17 +44,17 @@ export const uploadMedicalRecord = async (req, res) => {
     let parsedSymptoms;
     try {
       // If symptoms is already an array, use it; otherwise parse it
-      parsedSymptoms = Array.isArray(symptomsInput) 
-        ? symptomsInput 
+      parsedSymptoms = Array.isArray(symptomsInput)
+        ? symptomsInput
         : JSON.parse(symptomsInput);
-      
+
       // Make sure all symptoms are strings
-      parsedSymptoms = parsedSymptoms.map(s => String(s));
+      parsedSymptoms = parsedSymptoms.map((s) => String(s));
     } catch (error) {
       console.error("Error parsing symptoms:", error);
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: "Invalid format for symptoms. Expected an array of strings.",
-        error: error.message
+        error: error.message,
       });
     }
 
@@ -63,47 +66,55 @@ export const uploadMedicalRecord = async (req, res) => {
       } else {
         // Parse the JSON string
         const parsed = JSON.parse(medicinesInput);
-        
+
         // If the result is an object, wrap it in an array
         parsedMedicines = Array.isArray(parsed) ? parsed : [parsed];
       }
-      
+
       // Ensure each medicine has the required fields
-      parsedMedicines = parsedMedicines.map(med => {
-        if (typeof med === 'string') {
+      parsedMedicines = parsedMedicines.map((med) => {
+        if (typeof med === "string") {
           med = JSON.parse(med);
         }
-        
+
         if (!med.name || !med.dosage || !med.frequency || !med.duration) {
-          throw new Error("Each medicine must have name, dosage, frequency, and duration");
+          throw new Error(
+            "Each medicine must have name, dosage, frequency, and duration"
+          );
         }
-        
+
         return {
           name: med.name,
           dosage: med.dosage,
           frequency: med.frequency,
           duration: med.duration,
-          takenAt: med.takenAt || []
+          takenAt: med.takenAt || [],
         };
       });
     } catch (error) {
       console.error("Error parsing medicines:", error);
-      return res.status(400).json({ 
-        message: "Invalid format for medicines. Each medicine must have name, dosage, frequency, and duration.",
-        error: error.message
+      return res.status(400).json({
+        message:
+          "Invalid format for medicines. Each medicine must have name, dosage, frequency, and duration.",
+        error: error.message,
       });
     }
     // Fixed Cloudinary upload function
     const uploadToCloudinary = (file, resourceType) => {
       return new Promise((resolve, reject) => {
-        console.log(`Uploading ${file.originalname} (${file.size} bytes) to Cloudinary...`);
+        console.log(
+          `Uploading ${file.originalname} (${file.size} bytes) to Cloudinary...`
+        );
         // Create upload stream
         const uploadStream = cloudinary.uploader.upload_stream(
-          { 
-            resource_type: resourceType || "auto", 
+          {
+            resource_type: resourceType || "auto",
             folder: "medical_records",
-            public_id: `${Date.now()}_${file.originalname.replace(/\s+/g, '_')}`,
-            overwrite: true
+            public_id: `${Date.now()}_${file.originalname.replace(
+              /\s+/g,
+              "_"
+            )}`,
+            overwrite: true,
           },
           (error, result) => {
             if (error) {
@@ -114,7 +125,7 @@ export const uploadMedicalRecord = async (req, res) => {
               resolve(result.secure_url);
             }
           }
-        ); 
+        );
         // Check if file has buffer before sending
         if (file && file.buffer) {
           uploadStream.end(file.buffer);
@@ -126,17 +137,17 @@ export const uploadMedicalRecord = async (req, res) => {
 
     // Upload prescription images (if provided)
     if (req.files?.prescriptionImages) {
-      const images = Array.isArray(req.files.prescriptionImages) 
-        ? req.files.prescriptionImages 
+      const images = Array.isArray(req.files.prescriptionImages)
+        ? req.files.prescriptionImages
         : [req.files.prescriptionImages];
-        
+
       if (images.length > 0) {
         console.log(`Uploading ${images.length} prescription images...`);
-        
-        const uploadPromises = images.map(file => 
+
+        const uploadPromises = images.map((file) =>
           uploadToCloudinary(file, "image")
         );
-        
+
         prescriptionImages = await Promise.all(uploadPromises);
         console.log("All prescription images uploaded:", prescriptionImages);
       }
@@ -144,13 +155,16 @@ export const uploadMedicalRecord = async (req, res) => {
 
     // Upload medical reports (if provided)
     if (req.files?.medicalReports) {
-      const reports = Array.isArray(req.files.medicalReports) 
-        ? req.files.medicalReports 
+      const reports = Array.isArray(req.files.medicalReports)
+        ? req.files.medicalReports
         : [req.files.medicalReports];
       if (reports.length > 0) {
         console.log(`Uploading ${reports.length} medical reports...`);
-        const uploadPromises = reports.map(file => 
-          uploadToCloudinary(file, file.mimetype.includes("pdf") ? "raw" : "image")
+        const uploadPromises = reports.map((file) =>
+          uploadToCloudinary(
+            file,
+            file.mimetype.includes("pdf") ? "raw" : "image"
+          )
         );
         medicalReports = await Promise.all(uploadPromises);
         console.log("All medical reports uploaded:", medicalReports);
@@ -166,7 +180,7 @@ export const uploadMedicalRecord = async (req, res) => {
       additionalNotes,
       prescriptionImages,
       medicalReports,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     await newRecord.save({ session });
@@ -179,7 +193,9 @@ export const uploadMedicalRecord = async (req, res) => {
     await session.abortTransaction();
     session.endSession();
     console.error("Error creating medical record:", error);
-    res.status(500).json({ message: "Error creating medical record", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error creating medical record", error: error.message });
   }
 };
 // Retrieve All Medical Records
@@ -188,35 +204,40 @@ export const getAllMedicalRecords = async (req, res) => {
     const records = await MedicalRecord.find();
     res.status(200).json(records);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching medical records",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching medical records",
+      error: error.message,
+    });
   }
 };
 
 // Retrieve a Medical Record by ID
 export const getMedicalRecordById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
 
-    // Validate MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid medical record ID" });
+    // Validate user ID format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const record = await MedicalRecord.findById(id);
-    if (!record) return res.status(404).json({ message: "Record not found" });
-    res.status(200).json(record);
+    // Find all records for this user
+    const records = await MedicalRecord.find({ user: userId });
+
+    if (!records.length) {
+      return res
+        .status(404)
+        .json({ message: "No records found for this user" });
+    }
+
+    res.status(200).json(records);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching medical record", error: error.message });
+    res.status(500).json({
+      message: "Error fetching medical records",
+      error: error.message,
+    });
   }
 };
-
 // Update Medical Record
 export const updateMedicalRecord = async (req, res) => {
   try {
@@ -240,26 +261,6 @@ export const updateMedicalRecord = async (req, res) => {
   }
 };
 
-// Delete Medical Record
-export const deleteMedicalRecord = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Validate MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid medical record ID" });
-    }
-
-    const deletedRecord = await MedicalRecord.findByIdAndDelete(id);
-    if (!deletedRecord)
-      return res.status(404).json({ message: "Record not found" });
-    res.status(200).json({ message: "Record deleted successfully" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting medical record", error: error.message });
-  }
-};
 
 // Get User Profile
 export const getUserProfile = async (req, res) => {
@@ -332,12 +333,10 @@ export const getMedicalHistory = async (req, res) => {
     );
     res.status(200).json(records);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving medical history",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving medical history",
+      error: error.message,
+    });
   }
 };
 
@@ -358,12 +357,10 @@ export const getApprovedDoctors = async (req, res) => {
 
     res.status(200).json({ approvedDoctors: user.approvedDoctors });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching approved doctors",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching approved doctors",
+      error: error.message,
+    });
   }
 };
 
@@ -384,12 +381,10 @@ export const revokeDoctorAccess = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Doctor access revoked successfully",
-        approvedDoctors: updatedUser.approvedDoctors,
-      });
+    res.status(200).json({
+      message: "Doctor access revoked successfully",
+      approvedDoctors: updatedUser.approvedDoctors,
+    });
   } catch (error) {
     res
       .status(500)

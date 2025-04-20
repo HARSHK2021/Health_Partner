@@ -7,7 +7,6 @@ import {
   getAllMedicalRecords, 
   getMedicalRecordById, 
   updateMedicalRecord, 
-  deleteMedicalRecord 
 } from "../controllers/patientController.js";
 
 import multer from 'multer';
@@ -27,9 +26,9 @@ router.post("/update-profile",protectUser,updateUserProfile);
 //Medical Records
 router.post("/upload-medical-records",protectUser,uploadFields, uploadMedicalRecord);
 router.get("/medical-records", protectUser, getAllMedicalRecords);
-router.get("/medical-records/:id", protectUser, getMedicalRecordById);
+// router.get("/medical-records-by/:id", protectUser, getMedicalRecordById);
+router.get('/medical-records/user/:userId', protectUser, getMedicalRecordById);
 router.patch("/medical-records/:id", protectUser, updateMedicalRecord);
-router.delete("/medical-records/:id", protectUser, deleteMedicalRecord);
 
 router.post("/addmen",protectUser,recordPeriodStart);
 router.get("/tam",protectUser,getCurrentPhase);
