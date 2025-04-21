@@ -22,10 +22,11 @@ import {
 function Sidebar({ role }) {
   const menuItems = {
     doctor: [
-      { icon: Home, label: 'Dashboard' },
-      { icon: Users, label: 'Patients' },
-      { icon: Calendar, label: 'Appointments' },
-      { icon: MessageSquare, label: 'Messages' },
+      { icon: Home, label: 'My Health' , link: '/doctor-dashboard/myhealth' },
+      { icon: FolderPlus, label: ' Add self Medical Record', link:'/doctor-dashboard/addmedicalrecord' },
+      { icon: Users, label: 'My Patients', link:'/doctor-dashboard/managepatients' },
+      { icon: Calendar, label: 'Track Menstruation',link:'/doctor-dashboard/menstruation'  },
+      { icon: MessageCircle, label: ' Notification', link:'/doctor-dashboard/notification' },
       { icon: BarChart, label: 'Analytics' },
     ],
     patient: [

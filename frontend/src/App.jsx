@@ -14,14 +14,14 @@ import PatientProtectedWrapper from "./Wrapper/PatientProtectedWrapper";
 import DoctorFinder from "./components/PatientComponents/DoctorFinder";
 import Menstruation  from "./components/Menstruation/Menstruation"
 import MyHealth from "./components/PatientComponents/MyHealth";
-import UserSettings from "./pages/UserSettings";
 import AddMedicalRecord from "./components/PatientComponents/AddMedicalRecord";
 import Notification from "./components/PatientComponents/Notification";
 import PatientSetting from "./components/PatientComponents/PatientSetting";
 import FindHospital from "./components/PatientComponents/FindHospital";
 import DoctorProtectedWrapper from "./Wrapper/DoctorProtectedWrapper";
 import DoctorDashboard from "./pages/DoctorDashboard";
-
+import DoctorSettings from "./components/doctorComponents/DoctorSettings"
+import ManagePatients from "./components/doctorComponents/ManagePatients";
 
 
 function App() {
@@ -82,7 +82,8 @@ function App() {
             <Route path="addmedicalrecord" element={<AddMedicalRecord />} />
             <Route path="findhospital" element={<FindHospital />} />
             <Route path="notification" element={<Notification />} />
-            <Route path="user-settings" element={<PatientSetting />} />
+            <Route path="user-settings" element={<DoctorSettings />} />
+            <Route path ="managepatients" element={<ManagePatients/>} />
 
           </Route>
 
