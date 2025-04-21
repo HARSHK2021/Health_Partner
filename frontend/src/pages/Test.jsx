@@ -68,7 +68,7 @@ const patientTrends = {
 };
 
 
-export default function Paad({ user }) {
+export default function Test({ user }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showAddPatient, setShowAddPatient] = useState(false);
