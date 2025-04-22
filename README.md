@@ -213,4 +213,6 @@ Secure messaging system allows patients to communicate with their healthcare pro
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-Made With Love 💖
+<hr />
+<br />
+Made With Love 💖 By @Somgester and @HarshK2021
