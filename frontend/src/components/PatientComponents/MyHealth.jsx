@@ -13,7 +13,7 @@ import {
   ChartCandlestickIcon,
   ChartColumnStackedIcon,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { format } from "date-fns";
 import WeightChart from "./WeightChart";
@@ -21,99 +21,37 @@ import ConditionChart from "./ConditionChart";
 import MedicalRecordsList from "./MedicalRecordsList";
 import { UserDataContext } from "../../context/UserContext";
 import BMIChart from "./BMIChart";
-
-
-const sampleMedicalRecords = [
-  {
-    _id: "1",
-    condition: "Diabetes",
-    symptoms: ["Frequent urination", "Increased thirst"],
-    dateDiagnosed: "2024-01-10T00:00:00.000Z",
-    recoveryStatus: "ongoing",
-    medicines: [
-      {
-        name: "Metformin",
-        dosage: "500mg",
-        frequency: "Twice a day",
-        duration: "30 days",
-        takenAt: ["2024-01-10T08:00:00.000Z", "2024-01-10T20:00:00.000Z"],
-      },
-    ],
-    doctor: "Dr. John Doe",
-    hospital: "City General Hospital",
-    pharmacy: "HealthPlus Pharmacy",
-    prescriptionImages: ["https://via.placeholder.com/150"],
-    medicalReports: ["https://via.placeholder.com/150"],
-    additionalNotes: "Patient should maintain a healthy diet and exercise.",
-    createdAt: "2024-01-10T12:00:00.000Z",
-  },
-  {
-    _id: "2",
-    condition: "Hypertension",
-    symptoms: ["Headache", "Dizziness", "Blurred vision"],
-    dateDiagnosed: "2024-02-05T00:00:00.000Z",
-    recoveryStatus: "ongoing",
-    medicines: [
-      {
-        name: "Lisinopril",
-        dosage: "10mg",
-        frequency: "Once a day",
-        duration: "60 days",
-        takenAt: ["2024-02-05T09:00:00.000Z"],
-      },
-    ],
-    doctor: "Dr. Emily Clark",
-    hospital: "Metro Care Clinic",
-    pharmacy: "Wellness Pharmacy",
-    prescriptionImages: [],
-    medicalReports: [],
-    additionalNotes: "Monitor blood pressure regularly.",
-    createdAt: "2024-02-05T10:30:00.000Z",
-  },
-  {
-    _id: "3",
-    condition: "Asthma",
-    symptoms: ["Shortness of breath", "Coughing", "Wheezing"],
-    dateDiagnosed: "2024-03-15T00:00:00.000Z",
-    recoveryStatus: "recovered",
-    medicines: [
-      {
-        name: "Albuterol Inhaler",
-        dosage: "90mcg",
-        frequency: "As needed",
-        duration: "As required",
-        takenAt: [],
-      },
-    ],
-    doctor: "Dr. Sarah Lee",
-    hospital: "Greenwood Medical Center",
-    pharmacy: "MediTrust Pharmacy",
-    prescriptionImages: ["https://via.placeholder.com/150"],
-    medicalReports: ["https://via.placeholder.com/150"],
-    additionalNotes: "Avoid triggers like dust and cold air.",
-    createdAt: "2024-03-15T14:45:00.000Z",
-  },
-];
-const conditionData = [
-  { condition: "Diabetes", date: "2024-01-10" },
-  { condition: "Hypertension", date: "2024-02-05" },
-  { condition: "Asthma", date: "2024-03-15" },
-  { condition: "Flu", date: "2024-03-20" },
-  { condition: "COVID-19", date: "2024-04-01" },
-  { condition: "Heart Disease", date: "2024-05-10" },
-  { condition: "Flu", date: "2024-05-15" },
-  { condition: "Hypertension", date: "2024-06-01" },
-];
+import axios from "axios";
+import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
 
 const MyHealth = () => {
   const { user, setUser } = React.useContext(UserDataContext);
   const [showBookAppointment, setShowBookAppointment] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
- 
-  const weightData = user.weightData
-  const bmiData =user.bmiRecords
 
+  const weightData = user.weightData;
+  const bmiData = user.bmiRecords;
+  const latestBmi = user.bmiRecords[user.bmiRecords.length - 1]?.bmi;
 
+  //fetch active meditation
+  useEffect(() => {
+    const fetchActiveMedication = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/v1/patient/activeMedicine/${user._id}`
+          
+        );
+        setUser((prevUser) => ({
+          ...prevUser,
+          activeMedication: response.data.activeMedication,
+        }));
+      } catch (error) {
+        console.error("Error fetching active medication:", error);
+      }
+    };
+
+    fetchActiveMedication();
+  }, []);
 
   return (
     <div className="p-5">
@@ -156,7 +94,7 @@ const MyHealth = () => {
             </div>
             <div className="text-center">
               <p className="text-gray-600">BMI</p>
-              <h3 className="text-lg font-bold">{user.bodyMassIndex}</h3>
+              <h3 className="text-lg font-bold">{latestBmi}</h3>
             </div>
           </div>
         </div>
@@ -180,7 +118,7 @@ const MyHealth = () => {
             </div>
             <div>
               <p className="text-gray-600">Medications</p>
-              <h3 className="text-2xl font-bold">2 Active</h3>
+              <h3 className="text-2xl font-bold">{user.activeMedication}</h3>
             </div>
           </div>
         </div>
@@ -189,11 +127,9 @@ const MyHealth = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-semibold mb-4">Health Trends</h2>
-          <ConditionChart data={conditionData} />
+          <ConditionChart />
         </div>
         <div className="flex flex-col gap-5">
-          
-
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold mb-4">Weight Trends</h2>
             <WeightChart data={weightData} />
@@ -365,7 +301,7 @@ const MyHealth = () => {
           </div>
         </div>
       )}
-      <MedicalRecordsList records={sampleMedicalRecords} />
+      <MedicalRecordsList />
     </div>
   );
 };

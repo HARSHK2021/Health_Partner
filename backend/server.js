@@ -5,6 +5,7 @@ import connectDB from './config/db.js'
 import authRoutes from "./routes/authRoutes.js"
 import accessRoutes from "./routes/accessRoutes.js"
 import patientRoutes from "./routes/patientRoutes.js"
+import userRoutes from "./routes/userRoutes.js"
 import http from "http"
 import { initializeSocket } from './socket.js'
 import "./utils/cronJobs.js";
@@ -27,7 +28,7 @@ app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/access", accessRoutes);
 app.use("/api/v1/patient",patientRoutes);
 app.use("/api/v1/doctor",doctorRoutes)
-
+app.use("/api/v1/user",userRoutes)
 
 
 const PORT= process.env.PORT || 4000;

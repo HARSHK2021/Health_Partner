@@ -87,7 +87,7 @@ export const login = async (req, res, next) => {
     if (!email || !password)
       return res.status(400).json({ message: "All fields are required" });
     const user = await User.findOne({ email }).select("+password");
-    console.log(user);
+    // console.log(user);
 
     if (!user)
       return res
@@ -226,9 +226,9 @@ export const signout = async (req, res, next) => {
 // Request Email OTP
 export const requestEmailOTP = async (req, res) => {
   try {
-    console.log("aagay yaha")
+    // console.log("aagay yaha")
     const { email, userType } = req.body;
-    console.log(userType);
+    // console.log(userType);
 
     if (!email || !userType) {
       return res.status(400).json({ message: "Email and userType are required" });
@@ -404,7 +404,7 @@ export const forgotPassword = async (req, res) => {
       `Click the link to reset your password: ${resetLink}`,
       resetPasswordTemplate(resetLink)
     );
-    console.log(response);
+    // console.log(response);
 
     res.status(200).json({ message: "Password reset link sent to email." });
   } catch (error) {

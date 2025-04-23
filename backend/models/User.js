@@ -59,6 +59,8 @@ const userSchema = new mongoose.Schema(
     medicalHistory: [
       { type: mongoose.Schema.Types.ObjectId, ref: "MedicalRecord" },
     ],
+    activeMedication: { type: Number, default: 0 },
+
 
     // Medicine reminders (Separate Schema)
     medicineReminders: [

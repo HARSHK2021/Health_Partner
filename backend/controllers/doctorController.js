@@ -35,7 +35,7 @@ export const getUserProfile = async (req, res) => {
 
 // Update profile for doctor
 export const updateDoctorProfile = async (req, res) => {
-  console.log("aagaya yah")
+  // console.log("aagaya yah")
   try {
     const userId = req.user._id;
     const {
@@ -64,7 +64,7 @@ export const updateDoctorProfile = async (req, res) => {
     // If both height and weight are provided, calculate and store BMI
     if (weight && height) {
       const BMI = calculateBMI(weight, height);
-      console.log("BMI:", BMI);
+      // console.log("BMI:", BMI);
 
       updateFields.height = height;
       updateFields.weight = weight;

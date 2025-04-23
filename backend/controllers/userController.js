@@ -27,7 +27,7 @@ export const getUser= async(req,res)=>{
 // Find Nearby Hospitals
 export const findNearbyHospitals = async (req, res) => {
   try {
-      const { latitude, longitude, radius = 5000 } = req.body; // Radius in meters (default: 5km)
+    const { latitude, longitude, radius = 5000 } = req.query;
 
       if (!latitude || !longitude) {
           return res.status(400).json({ message: "Latitude and Longitude are required" });
