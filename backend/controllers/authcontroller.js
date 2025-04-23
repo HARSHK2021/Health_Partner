@@ -81,6 +81,7 @@ export const signup = async (req, res, next) => {
 /// user Login
 export const login = async (req, res, next) => {
   try {
+    
     const { email, password } = req.body;
     // validate the data
     if (!email || !password)

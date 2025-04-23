@@ -244,7 +244,7 @@ const MyHealth = () => {
                 <div className="flex items-center space-x-4">
                   <Calendar className="w-5 h-5 text-blue-600" />
                   <div>
-                    <h3 className="font-medium"> doctor kanak </h3>
+                    <h3 className="font-medium"> doctor xyz </h3>
                     <p className="text-sm text-gray-600">cardio serugen</p>
                   </div>
                 </div>
