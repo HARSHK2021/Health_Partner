@@ -1,4 +1,4 @@
-# CMH: Centralized Medical Healthcare
+# Health_Partner: A Centralized Medical Healthcare System
 
 A comprehensive healthcare management platform designed to connect patients, doctors, and medical facilities in a unified digital ecosystem.
 
@@ -200,6 +200,9 @@ Female users can track their menstrual cycles, with the system predicting future
 
 ### Doctor-Patient Communication
 Secure messaging system allows patients to communicate with their healthcare providers, with access controls to ensure privacy.
+
+### To Be Implemented(priority):
+- [ ] Image Encryption (Medical Records): for now they are just getting saved to cloudinary without any encryption.
 
 ## Contributing?
 
