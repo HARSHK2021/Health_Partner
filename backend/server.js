@@ -33,7 +33,6 @@ app.use("/api/v1/doctor",doctorRoutes)
 const PORT= process.env.PORT || 4000;
 server.listen(PORT,()=> console.log(` Server running on port ${PORT}`))
 
-//write hello from server 
 app.get("/",(req,res)=>{
     res.send("Chal Raha Hu Bhai 🚶");
 })

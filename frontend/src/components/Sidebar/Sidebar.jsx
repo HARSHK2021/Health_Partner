@@ -15,7 +15,8 @@ import {
   Search,
   Hospital,
   FolderPlus,
-  MessageCircle
+  MessageCircle,
+  Shield
   
 } from 'lucide-react';
 
@@ -32,6 +33,7 @@ function Sidebar({ role }) {
     patient: [
       { icon: Home, label: 'My Health' , link: '/patient-dashboard/myhealth' },
       { icon: Search, label: 'Search Doctor' ,link:'/patient-dashboard/searchdoctor' },
+      { icon: Shield, label: 'Manage Access', link:'/patient-dashboard/access-control' },
       { icon: Calendar, label: 'Track Menstruation',link:'/patient-dashboard/menstruation'  },
       { icon: Hospital, label: 'Search Hospital', link:'/patient-dashboard/findhospital' },
       { icon: FolderPlus, label: ' Add Medical Record', link:'/patient-dashboard/addmedicalrecord' },
@@ -89,7 +91,7 @@ function Sidebar({ role }) {
       </nav>
       <div className=" bg-gray-100  p-6 shadow-sm border border-gray-100">
         <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg"
-        onClick={()=>navigate("/patient-dashboard/user-settings")}>
+        onClick={()=>navigate(`/${role}-dashboard/user-settings`)}>
           <Settings className="w-5 h-5" />
           <span>Settings</span>
         </button>
