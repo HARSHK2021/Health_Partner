@@ -23,6 +23,7 @@ import { UserDataContext } from "../../context/UserContext";
 import BMIChart from "./BMIChart";
 import axios from "axios";
 import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
+const host = `${import.meta.env.VITE_BASE_URL}`;
 
 const MyHealth = () => {
   const { user, setUser } = React.useContext(UserDataContext);
@@ -38,8 +39,7 @@ const MyHealth = () => {
     const fetchActiveMedication = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/v1/patient/activeMedicine/${user._id}`
-          
+          `${host}/patient/activeMedicine/${user._id}`
         );
         setUser((prevUser) => ({
           ...prevUser,
