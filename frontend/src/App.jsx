@@ -22,8 +22,8 @@ import DoctorProtectedWrapper from "./Wrapper/DoctorProtectedWrapper";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorSettings from "./components/doctorComponents/DoctorSettings"
 import ManagePatients from "./components/doctorComponents/ManagePatients";
-
-
+import PatientDetails from "./components/doctorComponents/PatientDetails";
+import AccessControl from "./components/PatientComponents/AccessControl";
 function App() {
   return (
     <>
@@ -38,10 +38,7 @@ function App() {
           <Route path="/facility-dashboard" element={<FacilityDashboard />} />
           <Route path="/verify/:userID" element={<VerifyPage />} />
           <Route path="/dashboard/:" element={<Dashboard />} />
-
           {/* User Settings */}
-          
-
           <Route
             path="/patient-dashboard/*"
             element={
@@ -58,16 +55,9 @@ function App() {
             <Route path="findhospital" element={<FindHospital />} />
             <Route path="notification" element={<Notification />} />
             <Route path="user-settings" element={<PatientSetting />} />
-
+            <Route path="access-control" element={<AccessControl />} />
           </Route>
-
-
-
-
-
-
           {/* doctor routes  */}
-          
           <Route
             path="/doctor-dashboard/*"
             element={
@@ -83,18 +73,9 @@ function App() {
             <Route path="findhospital" element={<FindHospital />} />
             <Route path="notification" element={<Notification />} />
             <Route path="user-settings" element={<DoctorSettings />} />
-            <Route path ="managepatients" element={<ManagePatients/>} />
-
+            <Route path="managepatients" element={<ManagePatients />} />
+            <Route path="patient/:patientId" element={<PatientDetails />} />
           </Route>
-
-
-        
-
-
-
-          
-          
-          
         </Routes>
       </Router>
     </>
