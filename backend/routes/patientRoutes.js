@@ -1,12 +1,13 @@
 import express from  'express';
 const router = express.Router();
-import { getUserProfile, updateUserProfile, uploadMedicalRecord} from "../controllers/patientController.js"
+import { getUserProfile, updateActiveMedicationCount, updateUserProfile, uploadMedicalRecord} from "../controllers/patientController.js"
 import protectUser from "../middlewares/protectUser.js"
 import { 
 
   getAllMedicalRecords, 
   getMedicalRecordById, 
   updateMedicalRecord, 
+ 
 } from "../controllers/patientController.js";
 
 import multer from 'multer';
@@ -30,7 +31,5 @@ router.get("/medical-records", protectUser, getAllMedicalRecords);
 router.get('/medical-records/user/:userId', protectUser, getMedicalRecordById);
 router.patch("/medical-records/:id", protectUser, updateMedicalRecord);
 
-router.post("/addmen",protectUser,recordPeriodStart);
-router.get("/tam",protectUser,getCurrentPhase);
-router.get("/cycle",protectUser,getCycleHistory)
+router.get('/activeMedicine/:userId', updateActiveMedicationCount);
 export default router;

@@ -29,4 +29,5 @@ export const CMH_ROUTES = {
     GET_DOCTORS_WITH_ACCESS: `${host}/access/doctors`,
     RESPOND_TO_ACCESS_REQUEST: `${host}/access/respond`,
     REVOKE_ACCESS: `${host}/access/revoke`,
+    GET_ACTIVE_MEDICINE_BY_ID: `${host}/activeMedicine/:userId`,
 }

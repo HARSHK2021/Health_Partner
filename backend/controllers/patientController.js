@@ -238,6 +238,36 @@ export const getMedicalRecordById = async (req, res) => {
     });
   }
 };
+
+
+// get codition from medical record
+export const getConditionFromMedicalRecord = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate user ID format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    // Find all records for this user
+    const records = await MedicalRecord.find({ user: userId });
+
+    if (!records.length) {
+      return res
+        .status(404)
+        .json({ message: "No records found for this user" });
+    }
+
+    const conditions = records.map((record) => record.condition);
+    res.status(200).json(conditions);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching medical records",
+      error: error.message,
+    });
+  }
+};
 // Update Medical Record
 export const updateMedicalRecord = async (req, res) => {
   try {
@@ -264,7 +294,7 @@ export const updateMedicalRecord = async (req, res) => {
 
 // Get User Profile
 export const getUserProfile = async (req, res) => {
-  console.log("user from ", req.user);
+  // console.log("user from ", req.user);
   res.status(200).json(req.user);
 };
 
@@ -274,28 +304,26 @@ export const updateUserProfile = async (req, res) => {
     const userId = req.user._id;
     const { address, profileImage, height, weight, bloodGroup, dateOfBirth } =
       req.body;
-    console.log("aagay ayaha");
+
     const user = req.user;
 
-    // Create an empty object to store updates
     let updateFields = {};
-    let updateOperations = {}; // For pushing historical data
+    let updateOperations = {};
     const currentDate = new Date();
     let BMI = null;
 
-    // Add fields to update only if they are provided
     if (address) updateFields.address = address;
     if (profileImage) updateFields.profileImage = profileImage;
     if (bloodGroup) updateFields.bloodGroup = bloodGroup;
     if (dateOfBirth) updateFields.dateOfBirth = dateOfBirth;
 
-    // If both height and weight are provided, calculate and store BMI
     if (weight && height) {
       BMI = calculateBMI(weight, height);
       console.log("BMI", BMI);
 
-      updateFields.height = height; // Update latest height
-      updateFields.weight = weight; // Update latest weight
+      updateFields.height = height;
+      updateFields.weight = weight;
+      updateFields.bodyMassIndex = BMI; // ✅ Add BMI to main profile
 
       updateOperations.$push = {
         ...updateOperations.$push,
@@ -305,7 +333,6 @@ export const updateUserProfile = async (req, res) => {
       };
     }
 
-    // Perform update with height, weight, and BMI history storage
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateFields, ...updateOperations },
@@ -389,5 +416,42 @@ export const revokeDoctorAccess = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error revoking doctor access", error: error.message });
+  }
+};
+
+
+// Get Active Medicines
+
+export const updateActiveMedicationCount = async (req,res) => {
+  try {
+    // Ensure userId is a valid ObjectId
+
+    const {userId} = req.params;
+
+    // Step 1: Find all ongoing medical records of the user
+    const ongoingRecords = await MedicalRecord.find({
+      user: userId,
+      recoveryStatus: "ongoing",
+    });
+
+    // Step 2: Count all medicines in those records
+    let totalMedicines = 0;
+    ongoingRecords.forEach((record) => {
+      totalMedicines += record.medicines.length;
+    });
+
+    // Step 3: Update the User document
+    await User.findByIdAndUpdate(userId, {
+      activeMedication: totalMedicines,
+    });
+
+    console.log(`Updated activeMedication to ${totalMedicines}`);
+    return res.status(200).json({
+      message: "Active medication count updated successfully",
+      activeMedication: totalMedicines,
+    });
+  } catch (err) {
+    console.error("Error updating active medication count:", err.message);
+    throw err;
   }
 };
