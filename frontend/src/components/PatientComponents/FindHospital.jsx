@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
+const host = `${import.meta.env.VITE_BASE_URL}`;
 
 export default function HospitalFinder() {
   const [latitude, setLatitude] = useState(null);
@@ -24,7 +25,7 @@ export default function HospitalFinder() {
       const fetchNearbyHospitals = async () => {
         try {
           const response = await fetch(
-            `http://localhost:4000/api/v1/user/nearByHospital?latitude=${latitude}&longitude=${longitude}`,
+            `${host}/user/nearByHospital?latitude=${latitude}&longitude=${longitude}`,
             {
               method: "GET",
               headers: {
@@ -49,7 +50,7 @@ export default function HospitalFinder() {
       const fetchSearchedHospitals = async () => {
         try {
           const response = await fetch(
-            `http://localhost:4000/api/v1/user/searchHospital?searchTerm=${searchTerm}`,
+            `${host}/user/searchHospital?searchTerm=${searchTerm}`,
             {
               method: "GET",
               headers: {

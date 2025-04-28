@@ -20,7 +20,10 @@ const server = http.createServer(app)
 //initialize Socket.IO
 initializeSocket(server);
 
-app.use(cors());
+app.use(cors({
+    origin: "https://healthpartner-fmds.onrender.com",
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 

@@ -20,6 +20,8 @@ import {
 import "@fontsource/poppins";
 import { Hospital } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
+const host = `${import.meta.env.VITE_BASE_URL}`;
+
 
 
 const schema = z.object({
@@ -52,7 +54,7 @@ const FacilityRegistrationForm = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/v1/auth/register-medical-facility", data);
+      const response = await axios.post(`${host}/auth/register-medical-facility`, data);
       console.log(response);
       if(response.status==201){
        const data = response.data;
