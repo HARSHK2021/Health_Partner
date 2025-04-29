@@ -21,16 +21,16 @@ const URL = process.env.FRONTEND_URL;
 //initialize Socket.IO
 initializeSocket(server);
 
-// app.use(cors({
-//     origin: "https://healthpartner-fmds.onrender.com",
-//     credentials: true,
-// }));
-app.use(
-  cors({
-    origin: URL,
+app.use(cors({
+    origin: "https://healthpartner-fmds.onrender.com",
     credentials: true,
-  })
-);
+}));
+// app.use(
+//   cors({
+//     origin: URL,
+//     credentials: true,
+//   })
+// );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
