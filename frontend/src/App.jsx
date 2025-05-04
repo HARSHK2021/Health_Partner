@@ -24,12 +24,14 @@ import DoctorSettings from "./components/doctorComponents/DoctorSettings"
 import ManagePatients from "./components/doctorComponents/ManagePatients";
 import PatientDetails from "./components/doctorComponents/PatientDetails";
 import AccessControl from "./components/PatientComponents/AccessControl";
+import MedicalDashboard from "./components/HospitalFacilityComponents/MainDashboard"
 function App() {
   return (
     <>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/home" element={<MedicalDashboard />} />
           <Route path="/register-facility" element={<FacilityRegistrationForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register/:role" element={<UserRegistrationForm />} />

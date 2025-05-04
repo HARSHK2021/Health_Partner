@@ -13,6 +13,7 @@ import {
   Stethoscope,
   Building2,
   Menu,
+  LayoutDashboard
 } from "lucide-react";
 import doc from "../assets/doc.jpg";
 import doc2 from "../assets/doc2.jpg";
