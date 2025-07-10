@@ -5,7 +5,7 @@ export const CMH_ROUTES = {
     GET_USER: `${host}/user/getuser/:userID`,
     GET_FACILITY: `${host}/user/getfacility/:userID`,
     SIGNUP: `${host}/auth/signup`,
-    LOGIN: `${host}auth/login`,
+    LOGIN: `${host}/auth/login`,
     FORGOT_PASSWORD: `${host}/auth/forgot-password`,
     REGISTER_MEDICAL_FACILITY: `${host}/auth/register-medical-facility`,
     LOGIN_FACILITY: `${host}/auth/login-facility`,
