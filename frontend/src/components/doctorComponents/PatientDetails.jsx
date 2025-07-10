@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  User, Clipboard, Activity, Calendar, 
-  Weight, Ruler, Heart, ArrowLeft, 
-  Clock, AlertCircle
-} from 'lucide-react';
-import axios from 'axios';
-import { CMH_ROUTES } from '../../cmhRoutes/cmh.routes';
-import { format } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  User,
+  Clipboard,
+  Activity,
+  Calendar,
+  Weight,
+  Ruler,
+  Heart,
+  ArrowLeft,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
+import axios from "axios";
+import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
+import { format } from "date-fns";
 
 const PatientDetails = () => {
   const { patientId } = useParams();
@@ -16,21 +23,59 @@ const PatientDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${CMH_ROUTES.GET_PATIENT_DATA}/${patientId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        console.log("=== PATIENT DETAILS DEBUG ===");
+        console.log("Patient ID from URL params:", patientId);
+        console.log("Token exists:", !!token);
+        console.log("VITE_BASE_URL:", import.meta.env.VITE_BASE_URL);
+        console.log("CMH_ROUTES.GET_PATIENT_DATA:", CMH_ROUTES.GET_PATIENT_DATA);
+        console.log("Full API URL:", `${CMH_ROUTES.GET_PATIENT_DATA}/${patientId}`);
+        
+        // Validate patientId format (should be a valid MongoDB ObjectId)
+        if (!patientId || patientId.length !== 24) {
+          console.error("Invalid patient ID format:", patientId);
+          setError("Invalid patient ID format");
+          return;
+        }
+
+        const response = await axios.get(
+          `${CMH_ROUTES.GET_PATIENT_DATA}/${patientId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setPatient(response.data);
+        console.log("Patient data fetched successfully:", response.data);
       } catch (err) {
-        console.error('Error fetching patient data:', err);
-        setError(err.response?.data?.message || 'Failed to load patient data');
+        console.error("=== FETCH PATIENT ERROR ===");
+        console.error("Status Code:", err.response?.status);
+        console.error("Status Text:", err.response?.statusText);
+        console.error("Response Data:", err.response?.data);
+        console.error("Request URL:", err.config?.url);
+        console.error("Request Method:", err.config?.method);
+        console.error("Request Headers:", err.config?.headers);
+        console.error("Full Error Object:", err);
+        setError(err.response?.data?.message || "Failed to load patient data");
+        if (err.response?.status === 404) {
+          setError(
+            "Patient not found or you may not have access to view this patient"
+          );
+        } else if (err.response?.status === 401) {
+          setError("Unauthorized access. Please login again.");
+        } else if (err.response?.status === 403) {
+          setError("You do not have permission to view this patient");
+        } else {
+          setError(
+            err.response?.data?.message || "Failed to load patient data"
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -38,11 +83,18 @@ const PatientDetails = () => {
 
     if (patientId && token) {
       fetchPatientData();
+    } else {
+      console.log("Missing requirements for API call:", {
+        patientId: !!patientId,
+        token: !!token,
+        patientIdValue: patientId,
+      });
+      setLoading(false);
+      setError("Missing patient ID or authentication token");
     }
   }, [patientId, token]);
-
   const handleBack = () => {
-    navigate('/doctor-dashboard/managepatients');
+    navigate("/doctor-dashboard/managepatients");
   };
 
   const handleRecordClick = (record) => {
@@ -54,11 +106,11 @@ const PatientDetails = () => {
   };
 
   const getStatusColor = (status) => {
-    return status === 'recovered'
-      ? 'bg-green-100 text-green-800'
-      : status === 'critical'
-      ? 'bg-red-100 text-red-800'
-      : 'bg-yellow-100 text-yellow-800';
+    return status === "recovered"
+      ? "bg-green-100 text-green-800"
+      : status === "critical"
+      ? "bg-red-100 text-red-800"
+      : "bg-yellow-100 text-yellow-800";
   };
 
   if (loading) {
@@ -123,10 +175,10 @@ const PatientDetails = () => {
               <div className="flex items-center text-gray-600">
                 <Calendar className="w-5 h-5 mr-2" />
                 <span>
-                  Diagnosed:{' '}
+                  Diagnosed:{" "}
                   {format(
                     new Date(selectedRecord.dateDiagnosed),
-                    'MMM dd, yyyy'
+                    "MMM dd, yyyy"
                   )}
                 </span>
               </div>
@@ -182,7 +234,9 @@ const PatientDetails = () => {
                   Additional Notes
                 </h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700">{selectedRecord.additionalNotes}</p>
+                  <p className="text-gray-700">
+                    {selectedRecord.additionalNotes}
+                  </p>
                 </div>
               </div>
             )}
@@ -224,7 +278,8 @@ const PatientDetails = () => {
               <div className="flex items-center text-sm text-gray-500">
                 <Clock className="w-4 h-4 mr-1" />
                 <span>
-                  Created {format(new Date(selectedRecord.createdAt), 'MMM dd, yyyy')}
+                  Created{" "}
+                  {format(new Date(selectedRecord.createdAt), "MMM dd, yyyy")}
                 </span>
               </div>
             </div>
@@ -249,30 +304,32 @@ const PatientDetails = () => {
           <div className="h-20 w-20 bg-blue-100 rounded-full flex items-center justify-center">
             <User size={32} className="text-blue-600" />
           </div>
-          
+
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{patient.name}</h1>
-            <p className="text-gray-600">{patient.email} • {patient.phone}</p>
-            
+            <p className="text-gray-600">
+              {patient.email} • {patient.phone}
+            </p>
+
             <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2">
                 <Weight className="w-5 h-5 text-gray-500" />
-                <span>{patient.weight || 'N/A'} kg</span>
+                <span>{patient.weight || "N/A"} kg</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Ruler className="w-5 h-5 text-gray-500" />
-                <span>{patient.height || 'N/A'} cm</span>
+                <span>{patient.height || "N/A"} cm</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-gray-500" />
-                <span>BMI: {patient.bodyMassIndex || 'N/A'}</span>
+                <span>BMI: {patient.bodyMassIndex || "N/A"}</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-gray-500" />
-                <span>Blood: {patient.bloodGroup || 'N/A'}</span>
+                <span>Blood: {patient.bloodGroup || "N/A"}</span>
               </div>
             </div>
           </div>
@@ -322,7 +379,7 @@ const PatientDetails = () => {
                     <div className="flex items-center text-gray-600">
                       <Calendar className="w-4 h-4 mr-2" />
                       <span>
-                        {format(new Date(record.dateDiagnosed), 'MMM dd, yyyy')}
+                        {format(new Date(record.dateDiagnosed), "MMM dd, yyyy")}
                       </span>
                     </div>
 
