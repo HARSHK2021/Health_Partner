@@ -4,8 +4,8 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { 
-  Users, Activity, Calendar, Home, Clipboard, Bell, UserPlus, PlusCircle, Search,
-  Menu, X, ChevronDown, User, Hospital, Phone, Mail
+  Users, Activity, Home, UserPlus, Search,
+  Menu, X, User, Hospital, Phone, Mail
 } from 'lucide-react';
 import Sidebar from '../Sidebar/Sidebar';
 
