@@ -35,9 +35,8 @@ const PatientDetails = () => {
         console.log("VITE_BASE_URL:", import.meta.env.VITE_BASE_URL);
         console.log("CMH_ROUTES.GET_PATIENT_DATA:", CMH_ROUTES.GET_PATIENT_DATA);
         console.log("Full API URL:", `${CMH_ROUTES.GET_PATIENT_DATA}/${patientId}`);
-        
-        // Validate patientId format (should be a valid MongoDB ObjectId)
-        if (!patientId || patientId.length !== 24) {
+
+        if (!patientId) {
           console.error("Invalid patient ID format:", patientId);
           setError("Invalid patient ID format");
           return;
