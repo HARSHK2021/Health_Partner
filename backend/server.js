@@ -22,7 +22,7 @@ const URL = process.env.FRONTEND_URL;
 initializeSocket(server);
 
 app.use(cors({
-    origin: "https://healthpartner-fmds.onrender.com",
+    origin: true,
     credentials: true,
 }));
 // app.use(
