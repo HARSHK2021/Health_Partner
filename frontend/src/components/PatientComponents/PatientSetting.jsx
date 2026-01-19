@@ -26,14 +26,20 @@ const PatientSetting = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const { user, setUser } = React.useContext(UserDataContext);
+  const latestHeight = user.heightData && user.heightData.length > 0 
+    ? user.heightData[user.heightData.length - 1].height 
+    : "";
+  const latestWeight = user.weightData && user.weightData.length > 0 
+    ? user.weightData[user.weightData.length - 1].weight 
+    : "";
   const [formData, setFormData] = useState({
     firstName: `${user.firstName}`,
     middleName: `${user.middleName}`,
     lastName: `${user.lastName}`,
     email: `${user.email}`,
     phone: `${user.phone}`,
-    weight: "",
-    height: "",
+    weight: latestWeight,
+    height: latestHeight,
     bloodGroup: `${user.bloodGroup}`,
     address: `${user.address}`,
   });
@@ -83,99 +89,71 @@ const PatientSetting = () => {
   };
 
   return (
-    <div className="min-h-screen justify-center bg-gradient-to-br from-indigo-200 to-purple-100 flex">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="flex-grow max-w-3xl mx-8 my-8 bg-white rounded-3xl shadow-2xl p-8 
-                   transition-all duration-300 hover:shadow-3xl relative
-                   before:absolute before:inset-0 before:bg-gradient-to-br 
-                   before:from-blue-100/20 before:to-purple-100/20 before:-z-10"
-      >
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 
-                       bg-clip-text text-transparent tracking-tight drop-shadow-md"
-          >
-            Profile Settings
-          </motion.h1>
-          {isEditing ? (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleSave}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 
-                         rounded-xl shadow-lg hover:shadow-xl transition-all relative
-                         overflow-hidden hover:bg-gradient-to-bl group"
-            >
-              <span className="relative z-10">Save Changes</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.button>
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsEditing(true)}
-              className="bg-white text-gray-700 px-6 py-3 rounded-xl shadow-sm hover:shadow-md 
-                         transition-all border-2 border-blue-100 hover:border-blue-200
-                         flex items-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Edit Profile
-            </motion.button>
-          )}
-        </div>
-
-        {/* Profile Photo Section */}
-        <motion.div variants={itemVariants} className="flex flex-col items-center mb-8">
-          <div className="relative group">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl relative
-                         ring-8 ring-blue-50/50 hover:ring-purple-50/60 transition-all duration-300"
-            >
-              {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
-                />
-              ) : (
-                <UserCircleIcon className="text-gray-300 w-full h-full transition-all duration-300 hover:text-gray-400" />
-              )}
-              {isEditing && (
-                <motion.label
-                  whileHover={{ scale: 1.1, rotate: [0, -10, 10, -5, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute bottom-2 right-2 bg-gradient-to-br from-blue-500 to-purple-600 
-                             p-2.5 rounded-full cursor-pointer shadow-lg hover:shadow-xl ring-2 ring-white/50"
+    <div className="min-h-screen bg-gray-300">
+      <div className="h-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="p-6 sm:p-8">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Profile Settings
+              </h1>
+              {isEditing ? (
+                <button
+                  onClick={handleSave}
+                  className="bg-gray-200 hover:bg-green-300 text-black px-6 py-2.5 
+                             rounded-lg transition-all font-medium cursor-pointer"
                 >
-                  <CameraIcon className="w-7 h-7 text-white" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </motion.label>
+                  Save Changes
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-white hover:bg-gray-50 text-gray-800 px-6 py-2.5 
+                             rounded-lg border border-gray-300 transition-all font-medium
+                             flex items-center gap-2
+                             cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                  Edit Profile
+                </button>
               )}
-            </motion.div>
-            {isEditing && (
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 
-                            to-purple-500/20 animate-pulse blur-xl" />
-            )}
-          </div>
-        </motion.div>
+            </div>
 
-        {/* Form Section */}
-        <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
+            {/* Profile Photo Section */}
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg bg-gray-100">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <UserCircleIcon className="text-gray-400 w-full h-full" />
+                  )}
+                </div>
+                {isEditing && (
+                  <label className="absolute bottom-0 right-0 bg-green-400 hover:bg-green-500
+                                 p-2 rounded-full cursor-pointer shadow-md transition-all">
+                    <CameraIcon className="w-5 h-5 text-white" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Form Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-6">
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 label="First Name"
@@ -236,70 +214,72 @@ const PatientSetting = () => {
               editable={isEditing}
               type="number"
             />
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Blood Group</label>
-              <motion.select
-                name="bloodGroup"
-                value={formData.bloodGroup}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                whileHover={{ scale: 1.02 }}
-                className="w-full p-3 border rounded-xl disabled:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all"
-              >
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Blood Group</label>
+                  <select
+                    name="bloodGroup"
+                    value={formData.bloodGroup}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg disabled:bg-gray-50 
+                               disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                               transition-all cursor-pointer"
+                  >
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
                 <option value="B-">B-</option>
                 <option value="AB+">AB+</option>
                 <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </motion.select>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Address Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg h-32 resize-none 
+                           disabled:bg-gray-50 disabled:text-gray-500 focus:ring-2 focus:ring-blue-500 
+                           focus:border-blue-500 transition-all"
+                placeholder="Enter your address"
+              />
             </div>
           </div>
-        </motion.div>
-
-        {/* Address Section */}
-        <motion.div variants={itemVariants} className="mt-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-          <motion.textarea
-            name="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            disabled={!isEditing}
-            whileFocus={{ scale: 1.01 }}
-            className="w-full p-3 border rounded-xl h-32 resize-none disabled:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all"
-          />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 };
 
 const FormField = ({ label, name, value, onChange, editable, type = "text", required }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-2"
-    >
+    <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      <motion.input
+      <input
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         disabled={!editable}
-        whileHover={{ scale: 1.02 }}
-        whileFocus={{ scale: 1.02 }}
-        className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 transition-all ${
-          !editable ? "bg-gray-100" : "hover:shadow-md"
-        }`}
+        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                    transition-all ${
+                      editable 
+                        ? "border-gray-300" 
+                        : "border-gray-300 bg-gray-50 text-gray-500"
+                    }`}
       />
-    </motion.div>
+    </div>
   );
 };
 
