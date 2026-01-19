@@ -24,14 +24,16 @@ const itemVariants = {
 
 const PatientSetting = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
   const { user, setUser } = React.useContext(UserDataContext);
+  
   const latestHeight = user.heightData && user.heightData.length > 0 
     ? user.heightData[user.heightData.length - 1].height 
     : "";
   const latestWeight = user.weightData && user.weightData.length > 0 
     ? user.weightData[user.weightData.length - 1].weight 
     : "";
+  
+  const [profileImage, setProfileImage] = useState(user.profileImage || null);
   const [formData, setFormData] = useState({
     firstName: `${user.firstName}`,
     middleName: `${user.middleName}`,
@@ -42,6 +44,7 @@ const PatientSetting = () => {
     height: latestHeight,
     bloodGroup: `${user.bloodGroup}`,
     address: `${user.address}`,
+    profileImage: user.profileImage || "",
   });
   const token = localStorage.getItem("token"); 
   // console.log(token);
@@ -55,7 +58,9 @@ const PatientSetting = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result);
+        const imageData = reader.result;
+        setProfileImage(imageData);
+        setFormData((prev) => ({ ...prev, profileImage: imageData }));
       };
       reader.readAsDataURL(file);
     }
@@ -65,11 +70,10 @@ const PatientSetting = () => {
     setIsEditing(false);
   
     try {
-      console.log(formData);
-      // For example, save data to server
+      console.log("Saving profile data:", formData);
       const response = await axios.post(
         CMH_ROUTES.EDIT_PROFILE, 
-        formData, // Directly pass formData (no need for JSON.stringify)
+        formData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -77,14 +81,17 @@ const PatientSetting = () => {
           },
         }
       );
-      console.log("response from profile update",response)
-      setUser(response);
-      if (response.status!=200) {
+      console.log("Response from profile update:", response);
+      
+      if (response.status === 200 && response.data.user) {
+        setUser(response.data.user);
+        console.log("Profile updated successfully");
+      } else {
         throw new Error("Failed to save changes.");
       }
-      console.log("Changes saved successfully.");
     } catch (error) {
       console.error("Error saving changes:", error);
+      alert("Failed to save profile changes. Please try again.");
     }
   };
 
