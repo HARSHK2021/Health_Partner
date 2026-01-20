@@ -18,7 +18,6 @@ const app = express();
 const server = http.createServer(app);
 
 const URL = process.env.FRONTEND_URL;
-
 //initialize Socket.IO
 initializeSocket(server);
 
@@ -32,7 +31,6 @@ app.use(cors({
 //     credentials: true,
 //   })
 // );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
