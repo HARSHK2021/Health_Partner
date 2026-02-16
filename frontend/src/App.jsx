@@ -26,10 +26,29 @@ import PatientDetails from "./components/doctorComponents/PatientDetails";
 import AccessControl from "./components/PatientComponents/AccessControl";
 import MedicalDashboard from "./components/HospitalFacilityComponents/MainDashboard";
 import MedicalRecordsPage from "./pages/MedicalRecordsPage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <>
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          success: {
+            style: {
+              background: "#16a34a",
+              color: "#ffffff",
+            },
+          },
+          error: {
+            style: {
+              background: "#dc2626",
+              color: "#ffffff",
+            },
+          },
+        }}
+      />
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
