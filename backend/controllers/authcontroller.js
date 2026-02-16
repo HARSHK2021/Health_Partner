@@ -92,7 +92,7 @@ export const login = async (req, res, next) => {
     if (!user)
       return res
         .status(400)
-        .json({ message: "USername not found Please Signup" });
+        .json({ message: `User does not exist please sign up.` });
     // validate password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword)
