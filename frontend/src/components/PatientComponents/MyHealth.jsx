@@ -150,7 +150,7 @@ const MyHealth = () => {
               <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
               <button
                 onClick={() => setShowBookAppointment(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
                 Book New
@@ -243,8 +243,8 @@ const MyHealth = () => {
       </div>
 
       {showBookAppointment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
             <h2 className="text-xl font-semibold mb-4">Book an Appointment</h2>
             <form className="space-y-4">
               <div>
@@ -285,13 +285,13 @@ const MyHealth = () => {
                 <button
                   type="button"
                   onClick={() => setShowBookAppointment(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
                 >
                   Book Appointment
                 </button>

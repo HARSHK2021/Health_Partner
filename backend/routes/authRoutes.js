@@ -7,6 +7,7 @@ import {
     login, 
     registerMedicalFacility,
     loginFacility,
+    googleLogin,
     requestEmailOTP, 
     verifyEmailOTP, 
     requestPhoneOTP, 
@@ -21,6 +22,7 @@ import { getFacility } from '../controllers/medicalFacilityController.js';
 /// user authentication routes
 router.post("/signup", signup);
 router.post("/login", login);
+router.post("/google-login", googleLogin);
 router.post("/signout", signout);
 router.post("/forgot-password",forgotPassword);
 router.post("/reset-password",resetPassword);

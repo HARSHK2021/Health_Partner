@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link, Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios"
+import ConfirmDialog from '../common/ConfirmDialog';
 import {
   Home,
   Users,
@@ -21,13 +22,13 @@ import {
   
 } from 'lucide-react';
 
-function Sidebar({ role }) {
-  const menuItems = {
+function Sidebar({ role, user }) {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const baseMenuItems = {
     doctor: [
       { icon: Home, label: 'My Health' , link: '/doctor-dashboard/myhealth' },
       { icon: FolderPlus, label: ' Add self Medical Record', link:'/doctor-dashboard/addmedicalrecord' },
       { icon: Users, label: 'My Patients', link:'/doctor-dashboard/managepatients' },
-      { icon: Calendar, label: 'Track Menstruation',link:'/doctor-dashboard/menstruation'  },
       { icon: MessageCircle, label: ' Notification', link:'/doctor-dashboard/notification' },
       { icon: BarChart, label: 'Analytics' },
     ],
@@ -35,7 +36,6 @@ function Sidebar({ role }) {
       { icon: Home, label: 'My Health' , link: '/patient-dashboard/myhealth' },
       { icon: Search, label: 'Search Doctor' ,link:'/patient-dashboard/searchdoctor' },
       { icon: Shield, label: 'Manage Access', link:'/patient-dashboard/access-control' },
-      { icon: Calendar, label: 'Track Menstruation',link:'/patient-dashboard/menstruation'  },
       { icon: Hospital, label: 'Search Hospital', link:'/patient-dashboard/findhospital' },
       { icon: FolderPlus, label: ' Add Medical Record', link:'/patient-dashboard/addmedicalrecord' },
       { icon: FileText, label: 'View Medical Records', link:'/patient-dashboard/medical-records' },
@@ -49,6 +49,25 @@ function Sidebar({ role }) {
     ],
   };
 
+  const menuItems = { ...baseMenuItems };
+  const userGender = user?.gender?.toLowerCase();
+  
+  if (userGender === 'female') {
+    if (role === 'patient') {
+      menuItems.patient = [
+        ...baseMenuItems.patient.slice(0, 3),
+        { icon: Calendar, label: 'Track Menstruation', link: '/patient-dashboard/menstruation' },
+        ...baseMenuItems.patient.slice(3)
+      ];
+    } else if (role === 'doctor') {
+      menuItems.doctor = [
+        ...baseMenuItems.doctor.slice(0, 3),
+        { icon: Calendar, label: 'Track Menstruation', link: '/doctor-dashboard/menstruation' },
+        ...baseMenuItems.doctor.slice(3)
+      ];
+    }
+  }
+
   const navigate = useNavigate();
   const logoutHandler = async()=>{
 
@@ -60,16 +79,13 @@ function Sidebar({ role }) {
           localStorage.removeItem('token');
           localStorage.removeItem('type');
           localStorage.removeItem('id');
+          setShowLogoutConfirm(false);
           navigate("/")
         }
-      
-      
     } catch (error) {
       console.error(error);
-      
+      setShowLogoutConfirm(false);
     }
-    
-
   }
 
   return (
@@ -92,16 +108,23 @@ function Sidebar({ role }) {
         ))}
       </nav>
       <div className=" bg-gray-100  p-6 shadow-sm border border-gray-100">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg"
+        <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg cursor-pointer"
         onClick={()=>navigate(`/${role}-dashboard/user-settings`)}>
           <Settings className="w-5 h-5" />
           <span>Settings</span>
         </button>
-        <button onClick={logoutHandler} className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+        <button onClick={() => setShowLogoutConfirm(true)} className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer">
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>
       </div>
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={logoutHandler}
+        title="Confirm Logout"
+        message="Are you sure you want to logout?"
+      />
      
     </div>
     
@@ -109,7 +132,8 @@ function Sidebar({ role }) {
 }
 
 Sidebar.propTypes = {
-  role: PropTypes.oneOf(['doctor', 'patient', 'facility']).isRequired
+  role: PropTypes.oneOf(['doctor', 'patient', 'facility']).isRequired,
+  user: PropTypes.object
 };
 
 export default Sidebar;

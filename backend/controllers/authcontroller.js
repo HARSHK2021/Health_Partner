@@ -6,7 +6,8 @@ import dotenv from "dotenv";
 import mailSender from "../services/sendGrid.js";
 import resetPasswordTemplate from "../templates/resetPasswordTemplate.js";
 import HealthcareFacility from "../models/HealthcareFacility.js";
-import otpEmailTemplate from "../templates/otpTemplate.js"
+import otpEmailTemplate from "../templates/otpTemplate.js";
+import { OAuth2Client } from "google-auth-library";
 dotenv.config();
 
 /// signup Controller
@@ -210,6 +211,94 @@ export const loginFacility = async (req, res) => {
     });
   }
 };
+export const googleLogin = async (req, res) => {
+  try {
+    const { googleToken, userType, weight, height, gender, phone } = req.body;
+
+    if (!googleToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Google token is required",
+      });
+    }
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: googleToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const firstName = payload.given_name || "";
+    const lastName = payload.family_name || "";
+    const googleId = payload.sub;
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "2d",
+      });
+
+      return res.status(200).json({
+        success: true,
+        user,
+        token,
+        message: "Login successful",
+      });
+    }
+
+    if (!weight || !height || !gender || !phone || !userType) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required for new user registration",
+      });
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid phone number. Must be 10 digits.",
+      });
+    }
+
+    const role = userType.toLowerCase() === "doctor" ? "doctor" : "patient";
+    
+    user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: await bcrypt.hash(googleId, 10),
+      role,
+      phone,
+      gender: gender.toLowerCase(),
+      weight: weight.toString(),
+      height: height.toString(),
+      googleId,
+      isVerified: true,
+    });
+
+    await user.save();
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "2d",
+    });
+
+    res.status(201).json({
+      success: true,
+      user,
+      token,
+      message: "Account created successfully",
+    });
+  } catch (error) {
+    console.error("Google login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 export const signout = async (req, res, next) => {
   try {
@@ -220,8 +309,6 @@ export const signout = async (req, res, next) => {
     res.status(500).json({ message: "Signout failed" });
   }
 };
-
-// request  email OTP
 
 // Request Email OTP
 export const requestEmailOTP = async (req, res) => {
