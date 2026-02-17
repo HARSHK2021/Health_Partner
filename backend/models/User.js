@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
       minlength: [6, "password must be at least 6 characters long"],
       select: false,
     },
+    googleId: { type: String, unique: true, sparse: true }, // Google OAuth ID
     role: { type: String, enum: ["patient", "doctor"], required: true },
     phone: { type: String, required: true, unique: true },
     address: { type: String },
