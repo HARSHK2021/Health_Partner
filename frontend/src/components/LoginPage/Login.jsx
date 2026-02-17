@@ -46,13 +46,14 @@ export default function LoginPage() {
       const response = await axios.post(apiUrl, userData);
       if (response.status === 200) {
         const data = response.data;
+        const userData = userType === "Facility" ? data.facility : data.user;    
         localStorage.setItem("token", data.token);
-        localStorage.setItem("type", data.user.role);
-        localStorage.setItem("id", data.user._id);
+        localStorage.setItem("type", userData.role || userType.toLowerCase());
+        localStorage.setItem("id", userData._id);
 
         toast.success("Login successful 🎉");
         if (userType === "Patient") {
-          setUser(data.user);
+          setUser(userData);
           navigate("/patient-dashboard");
         }
 
