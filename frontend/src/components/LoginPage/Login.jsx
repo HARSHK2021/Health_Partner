@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
+import { GoogleLogin } from "@react-oauth/google";
+import GoogleAuthForm from "./GoogleAuthForm";
 
 import {
   Button,
@@ -12,6 +14,7 @@ import {
   Link,
   MenuItem,
   CardContent,
+  Divider,
 } from "@mui/material";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -25,7 +28,18 @@ export default function LoginPage() {
   const [userType, setUserType] = useState("Patient");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user, setUser } = React.useContext(UserDataContext);
+  const [showGoogleAuthForm, setShowGoogleAuthForm] = useState(false);
+  const [googleUserData, setGoogleUserData] = useState(null);
+  const { user, setUser} = React.useContext(UserDataContext);
+
+  const handleGoogleSuccess = (credentialResponse) => {
+    setGoogleUserData(credentialResponse);
+    setShowGoogleAuthForm(true);
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google Sign-In failed. Please try again.");
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -58,6 +72,7 @@ export default function LoginPage() {
         }
 
         if (userType === "Doctor") {
+          setUser(userData);
           navigate("/doctor-dashboard");
         }
 
@@ -244,6 +259,17 @@ export default function LoginPage() {
                     </Button>
                   </form>
 
+                  <Divider sx={{ my: 2 }}>OR</Divider>
+
+                  <Box display="flex" justifyContent="center">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      text="signin_with"
+                      width="100%"
+                    />
+                  </Box>
+
                   <div className="w-full flex justify-center items-center mt-2">
                     New here!
                     <Button
@@ -260,6 +286,16 @@ export default function LoginPage() {
           )}
         </div>
       </div>
+
+      {showGoogleAuthForm && googleUserData && (
+        <GoogleAuthForm
+          googleUserData={googleUserData}
+          onClose={() => {
+            setShowGoogleAuthForm(false);
+            setGoogleUserData(null);
+          }}
+        />
+      )}
     </div>
   );
 }
