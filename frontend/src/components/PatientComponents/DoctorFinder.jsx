@@ -1,81 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-
-const doctors = [
-  {
-    id: 1,
-    name: "Dr. Sarah Johnson",
-    specialization: "Cardiologist",
-    hospital: "Heart Care Center",
-    phone: "555-0123",
-    experience: "15 years",
-    education: "MD - Cardiology, MBBS",
-    availability: "Mon-Fri, 9AM-5PM",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300"
-  },
-  {
-    id: 2,
-    name: "Dr. Michael Chen",
-    specialization: "Neurologist",
-    hospital: "Brain & Spine Institute",
-    phone: "555-0124",
-    experience: "12 years",
-    education: "MD - Neurology, MBBS",
-    availability: "Mon-Sat, 10AM-6PM",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300"
-  },
-  {
-    id: 3,
-    name: "Dr. Emily Brown",
-    specialization: "Pediatrician",
-    hospital: "Children's Medical Center",
-    phone: "555-0125",
-    experience: "10 years",
-    education: "MD - Pediatrics, MBBS",
-    availability: "Tue-Sun, 9AM-4PM",
-    rating: 4.9,
-    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=300"
-  }
-];
+import axios from 'axios';
 
 export default function DoctorFinder() {
+  const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterBy, setFilterBy] = useState('name');
+  const [error, setError] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalDoctors, setTotalDoctors] = useState(0);
 
-  const filteredDoctors = doctors.filter(doctor => {
-    const searchValue = searchTerm.toLowerCase();
-    switch (filterBy) {
-      case 'name':
-        return doctor.name.toLowerCase().includes(searchValue);
-      case 'specialization':
-        return doctor.specialization.toLowerCase().includes(searchValue);
-      case 'hospital':
-        return doctor.hospital.toLowerCase().includes(searchValue);
-      case 'phone':
-        return doctor.phone.includes(searchValue);
-      default:
-        return true;
-    }
-  });
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        setError(null);
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('search', searchTerm);
+        params.append('page', page);
+        params.append('limit', 10);
 
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'}/api/v1/doctor/all-doctors?${params}`
+        );
+
+        // Check if doctors array exists in response
+        if (response.data && Array.isArray(response.data.doctors)) {
+          setDoctors(response.data.doctors);
+          setFilteredDoctors(response.data.doctors);
+          setTotalDoctors(response.data.total || 0);
+          setError(null);
+        } else {
+          setError('Invalid response format from server');
+        }
+      } catch (err) {
+        console.error('Error fetching doctors:', err);
+        setError(err.response?.data?.message || 'Failed to fetch doctors');
+      }
+    };
+
+    const timeoutId = setTimeout(fetchDoctors, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, page]);
+
+  // Detailed Doctor View
   if (selectedDoctor) {
+    const fullName = `${selectedDoctor.firstName || ''} ${selectedDoctor.lastName || ''}`.trim();
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
           <div className="flex flex-col md:flex-row">
-            <img
-              src={selectedDoctor.image}
-              alt={selectedDoctor.name}
-              className="w-full md:w-1/3 h-64 md:h-auto object-cover"
-            />
+            {selectedDoctor.profileImage && (
+              <img
+                src={selectedDoctor.profileImage}
+                alt={fullName}
+                className="w-full md:w-1/3 h-64 md:h-auto object-cover bg-gray-200"
+              />
+            )}
             <div className="p-8 flex-1">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-3xl font-bold mb-4 text-gray-800">{selectedDoctor.name}</h2>
-                  <p className="text-xl text-blue-600 mb-2">{selectedDoctor.specialization}</p>
+                  <h2 className="text-3xl font-bold mb-4 text-gray-800">Dr. {fullName}</h2>
+                  <p className="text-xl text-blue-600 mb-2">Healthcare Professional</p>
                 </div>
                 <button
                   onClick={() => setSelectedDoctor(null)}
@@ -89,30 +75,27 @@ export default function DoctorFinder() {
               
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Hospital</h3>
-                  <p className="text-gray-900">{selectedDoctor.hospital}</p>
+                  <h3 className="font-semibold text-gray-700 mb-2">Email</h3>
+                  <p className="text-gray-900">{selectedDoctor.email || 'N/A'}</p>
                 </div>
                 <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Contact</h3>
-                  <p className="text-gray-900">{selectedDoctor.phone}</p>
+                  <h3 className="font-semibold text-gray-700 mb-2">Phone</h3>
+                  <p className="text-gray-900">{selectedDoctor.phone || 'N/A'}</p>
                 </div>
-                <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Experience</h3>
-                  <p className="text-gray-900">{selectedDoctor.experience}</p>
-                </div>
-                <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Education</h3>
-                  <p className="text-gray-900">{selectedDoctor.education}</p>
-                </div>
-                <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Availability</h3>
-                  <p className="text-gray-900">{selectedDoctor.availability}</p>
-                </div>
-                <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  <h3 className="font-semibold text-gray-700 mb-2">Rating</h3>
-                  <p className="text-gray-900">{selectedDoctor.rating}/5</p>
-                </div>
+                {selectedDoctor.address && (
+                  <div className="bg-gray-50 p-6 rounded-xl shadow-inner md:col-span-2">
+                    <h3 className="font-semibold text-gray-700 mb-2">Address</h3>
+                    <p className="text-gray-900">{selectedDoctor.address}</p>
+                  </div>
+                )}
               </div>
+              
+              <button
+                onClick={() => setSelectedDoctor(null)}
+                className="mt-8 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+              >
+                Back to List
+              </button>
             </div>
           </div>
         </div>
@@ -120,65 +103,113 @@ export default function DoctorFinder() {
     );
   }
 
+  // Error State
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8">
+          <h2 className="text-2xl font-bold text-red-800 mb-4">Error</h2>
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Doctor List View
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Search Bar with Filter Option */}
+      {/* Search Bar */}
       <div className="mb-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
         <h2 className="text-3xl font-bold mb-6 text-gray-800">Find a Doctor</h2>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search doctors..."
-              className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl pl-12 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-colors duration-200"
-            />
-            <Search  className="h-6 w-6 text-gray-400 absolute left-4 top-4" />
-          </div>
-          <select
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value)}
-            className="p-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 focus:border-blue-500 focus:outline-none transition-colors duration-200"
-          >
-            <option value="name">By Name</option>
-            <option value="specialization">By Specialization</option>
-            <option value="hospital">By Hospital</option>
-            <option value="phone">By Phone</option>
-          </select>
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1); // Reset to first page on new search
+            }}
+            placeholder="Search by name or email..."
+            className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl pl-12 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-colors duration-200"
+          />
+          <Search className="h-6 w-6 text-gray-400 absolute left-4 top-4" />
         </div>
       </div>
 
-      {/* Doctor Cards */}
+      {/* Empty State */}
+      {filteredDoctors.length === 0 && !error && (
+        <div className="text-center py-12">
+          <p className="text-gray-600 text-lg">No doctors found. Try a different search.</p>
+        </div>
+      )}
+
+      {/* Doctor Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredDoctors.map(doctor => (
-          <div
-            key={doctor.id}
-            onClick={() => setSelectedDoctor(doctor)}
-            className="bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer border border-gray-100 hover:border-blue-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-          >
-            <img
-              src={doctor.image}
-              alt={doctor.name}
-              className="w-full h-56 object-cover"
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">{doctor.name}</h3>
-              <p className="text-blue-600 mb-3">{doctor.specialization}</p>
-              <div className="space-y-2">
-                <p className="text-gray-600 flex items-center">
-                  <span className="w-4 h-4 mr-2">🏥</span>
-                  {doctor.hospital}
+        {filteredDoctors.map((doctor) => {
+          const fullName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
+          return (
+            <div
+              key={doctor._id}
+              onClick={() => setSelectedDoctor(doctor)}
+              className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer border border-gray-100 hover:border-blue-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {doctor.profileImage ? (
+                <img
+                  src={doctor.profileImage}
+                  alt={fullName}
+                  className="w-full h-56 object-cover bg-gray-200"
+                />
+              ) : (
+                <div className="w-full h-56 bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
+                  <span className="text-white text-4xl">👨‍⚕️</span>
+                </div>
+              )}
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-gray-800">Dr. {fullName}</h3>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <span>📧</span>
+                  {doctor.email}
                 </p>
-                <p className="text-gray-600 flex items-center">
-                  <span className="w-4 h-4 mr-2">📞</span>
-                  {doctor.phone}
-                </p>
+                {doctor.phone && (
+                  <p className="text-gray-600 flex items-center gap-2 mt-2">
+                    <span>📞</span>
+                    {doctor.phone}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* Pagination */}
+      {totalDoctors > 10 && (
+        <div className="flex justify-center gap-2 mt-12">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700">
+            Page {page} of {Math.ceil(totalDoctors / 10)}
+          </span>
+          <button
+            onClick={() => setPage(p => p + 1)}
+            disabled={page >= Math.ceil(totalDoctors / 10)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
