@@ -21,7 +21,7 @@ export default function DoctorFinder() {
         params.append('limit', 10);
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/doctor/all-doctors?${params}`
+          `${import.meta.env.VITE_BASE_URL}/doctor/all-doctors?${params}`
         );
 
         // Check if doctors array exists in response

@@ -53,7 +53,7 @@ const MyHealth = () => {
       const fetchDoctors = async () => {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/v1/doctor/all-doctors`
+            `${import.meta.env.VITE_BASE_URL}doctor/all-doctors`
           );
           if (response.data && Array.isArray(response.data.doctors)) {
             setDoctors(response.data.doctors);
@@ -72,7 +72,7 @@ const MyHealth = () => {
       const fetchSlots = async () => {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/v1/patient/appointments/slots?doctorId=${selectedDoctor}&date=${appointmentDate}`,
+            `${import.meta.env.VITE_BASE_URL}/patient/appointments/slots?doctorId=${selectedDoctor}&date=${appointmentDate}`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -104,7 +104,7 @@ const MyHealth = () => {
     setIsBooking(true);
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/patient/appointments/book`,
+        `${import.meta.env.VITE_BASE_URL}/patient/appointments/book`,
         {
           doctorId: selectedDoctor,
           appointmentDate: appointmentDate,
@@ -159,7 +159,7 @@ const MyHealth = () => {
       try {
         setLoadingAppointments(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/patient/appointments?status=scheduled`,
+          `${import.meta.env.VITE_BASE_URL}/patient/appointments?status=scheduled`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
