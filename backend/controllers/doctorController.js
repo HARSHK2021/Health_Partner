@@ -171,7 +171,139 @@ res.status(200).json({ patients });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
+}
 
+// Fetch all doctors
+export const getAllDoctors = async (req, res) => {
+  try {
+    const { specialization, search, page = 1, limit = 10 } = req.query;
 
+    let query = { role: "doctor" };
 
+    // Search by doctor name or email
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch doctors directly from User collection where role === "doctor"
+    const doctors = await User.find(query)
+      .select("firstName lastName email phone profileImage address role")
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    console.log("Doctors found:", doctors.length);
+
+    // Get total count for pagination
+    const total = await User.countDocuments(query);
+
+    if (doctors.length === 0) {
+      return res.status(200).json({
+        message: "No doctors found",
+        doctors: [],
+        total: 0,
+        page: parseInt(page),
+        pages: 0,
+      });
+    }
+
+    res.status(200).json({
+      message: "Doctors fetched successfully",
+      doctors: doctors,
+      total: total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+    });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({
+      message: "Error fetching doctors",
+      error: error.message,
+    });
+  }
+};
+
+// Fetch all doctors (simple version - without role check)
+export const getAllDoctorsSimple = async (req, res) => {
+  try {
+    const { specialization, search, page = 1, limit = 10 } = req.query;
+
+    let query = {};
+
+    // Filter by specialization if provided
+    if (specialization) {
+      query.specialization = specialization;
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch all DoctorProfiles with pagination (no role check)
+    const doctors = await DoctorProfile.find(query)
+      .populate("user", "firstName lastName email phone profileImage address role")
+      .populate("hospital", "name address city")
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    console.log("All DoctorProfiles found:", doctors.length);
+
+    // Get total count for pagination
+    const total = await DoctorProfile.countDocuments(query);
+
+    if (doctors.length === 0) {
+      return res.status(200).json({
+        message: "No doctor profiles found",
+        doctors: [],
+        total: 0,
+        page: parseInt(page),
+        pages: 0,
+      });
+    }
+
+    res.status(200).json({
+      message: "Doctors fetched successfully",
+      doctors: doctors,
+      total: total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+    });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({
+      message: "Error fetching doctors",
+      error: error.message,
+    });
+  }
+};
+
+// Debug endpoint - check DoctorProfile user field
+export const debugDoctorProfiles = async (req, res) => {
+  try {
+    const allProfiles = await DoctorProfile.find().select("user specialization");
+    
+    console.log("All DoctorProfiles:");
+    allProfiles.forEach((profile) => {
+      console.log(`ID: ${profile._id}, User: ${profile.user}, Specialization: ${profile.specialization}`);
+    });
+
+    res.status(200).json({
+      message: "Debug info",
+      totalProfiles: allProfiles.length,
+      profiles: allProfiles,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Error",
+      error: error.message,
+    });
+  }
 }
