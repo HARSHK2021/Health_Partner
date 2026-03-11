@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const secureFileSchema = new mongoose.Schema({
+    url: { type: String, required: true },
+    originalName: { type: String },
+    mimeType: { type: String },
+    fileId: { type: String, required: true },
+    isEncrypted: { type: Boolean, default: true }
+}, { _id: false });
+
 const medicalRecordSchema = new mongoose.Schema(
     {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Patient ID
@@ -21,8 +29,8 @@ const medicalRecordSchema = new mongoose.Schema(
         doctor: { type: String }, // Doctor who diagnosed
         hospital: { type: String }, // If patient visited a hospital
         pharmacy: { type: String }, // If patient got medicines from a pharmacy
-        prescriptionImages: [{ type: String }], // URLs for prescription images (stored in cloud)
-        medicalReports: [{ type: String }], // URLs for medical reports
+        prescriptionImages: [secureFileSchema], // Encrypted prescription images
+        medicalReports: [secureFileSchema], // Encrypted medical reports
         additionalNotes: { type: String }, // Extra notes about condition/treatment
 
         createdAt: { type: Date, default: Date.now }, // Record creation date

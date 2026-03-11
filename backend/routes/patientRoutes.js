@@ -12,7 +12,8 @@ import {
   getAvailableSlots,
   getAppointmentDetails,
   rateAppointment,
-  updateAppointmentMeetingLink
+  updateAppointmentMeetingLink,
+  getSecureFile
 } from "../controllers/patientController.js"
 import protectUser from "../middlewares/protectUser.js"
 import { 
@@ -43,6 +44,9 @@ router.get("/medical-records", protectUser, getAllMedicalRecords);
 // router.get("/medical-records-by/:id", protectUser, getMedicalRecordById);
 router.get('/medical-records/user/:userId', protectUser, getMedicalRecordById);
 router.patch("/medical-records/:id", protectUser, updateMedicalRecord);
+
+// Secure file access - serves decrypted files only to authorized users
+router.get("/secure-file/:fileId", protectUser, getSecureFile);
 
 router.get('/activeMedicine/:userId', updateActiveMedicationCount);
 

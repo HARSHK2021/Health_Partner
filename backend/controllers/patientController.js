@@ -5,6 +5,7 @@ import MedicalRecord from "../models/MedicalRecord.js";
 import cloudinary from "../config/cloudinary.config.js";
 import Appointment from "../models/Appointment.js";
 import DoctorProfile from "../models/DoctorProfile.js";
+import { encryptBuffer, decryptBuffer, generateSecureFileId } from "../utils/encryption.js";
 
 export const uploadMedicalRecord = async (req, res) => {
   const session = await mongoose.startSession();
@@ -101,21 +102,26 @@ export const uploadMedicalRecord = async (req, res) => {
         error: error.message,
       });
     }
-    // Fixed Cloudinary upload function
+    // Fixed Cloudinary upload function with encryption
     const uploadToCloudinary = (file, resourceType) => {
       return new Promise((resolve, reject) => {
         console.log(
-          `Uploading ${file.originalname} (${file.size} bytes) to Cloudinary...`
+          `Encrypting and uploading ${file.originalname} (${file.size} bytes) to Cloudinary...`
         );
+        if (!file || !file.buffer) {
+          return reject(new Error("Invalid file or missing buffer"));
+        }
+
+        // Encrypt the file buffer
+        const encryptedBuffer = encryptBuffer(file.buffer);
+        const fileId = generateSecureFileId();
+        
         // Create upload stream
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            resource_type: resourceType || "auto",
-            folder: "medical_records",
-            public_id: `${Date.now()}_${file.originalname.replace(
-              /\s+/g,
-              "_"
-            )}`,
+            resource_type: "raw",
+            folder: "medical_records_encrypted",
+            public_id: `${fileId}`,
             overwrite: true,
           },
           (error, result) => {
@@ -123,17 +129,19 @@ export const uploadMedicalRecord = async (req, res) => {
               console.error("Cloudinary Upload Error:", error);
               reject(error);
             } else {
-              console.log("File uploaded successfully:", result.secure_url);
-              resolve(result.secure_url);
+              console.log("Encrypted file uploaded successfully:", result.secure_url);
+              resolve({
+                url: result.secure_url,
+                originalName: file.originalname,
+                mimeType: file.mimetype,
+                fileId: fileId,
+                isEncrypted: true
+              });
             }
           }
         );
-        // Check if file has buffer before sending
-        if (file && file.buffer) {
-          uploadStream.end(file.buffer);
-        } else {
-          reject(new Error("Invalid file or missing buffer"));
-        }
+        
+        uploadStream.end(encryptedBuffer);
       });
     };
 
@@ -836,5 +844,85 @@ export const updateAppointmentMeetingLink = async (req, res) => {
   } catch (error) {
     console.error("Error updating meeting link:", error);
     res.status(500).json({ message: "Error updating meeting link", error: error.message });
+  }
+};
+
+// Secure file access endpoint - decrypts and serves files only to authorized users
+export const getSecureFile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const userRole = req.user.role;
+    const { fileId } = req.params;
+
+    if (!fileId) {
+      return res.status(400).json({ message: "File ID is required" });
+    }
+    const medicalRecord = await MedicalRecord.findOne({
+      $or: [
+        { "prescriptionImages.fileId": fileId },
+        { "medicalReports.fileId": fileId }
+      ]
+    });
+
+    if (!medicalRecord) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const recordOwnerId = medicalRecord.user.toString();
+    let hasAccess = false;
+
+    if (recordOwnerId === userId.toString()) {
+      hasAccess = true;
+    } else if (userRole === "doctor") {
+      const patient = await User.findById(recordOwnerId);
+      if (patient && patient.approvedDoctors && patient.approvedDoctors.includes(userId.toString())) {
+        hasAccess = true;
+      }
+    }
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied. You don't have permission to view this file." });
+    }
+    let fileDetails = null;
+    for (const img of medicalRecord.prescriptionImages) {
+      if (img.fileId === fileId) {
+        fileDetails = img;
+        break;
+      }
+    }
+    if (!fileDetails) {
+      for (const report of medicalRecord.medicalReports) {
+        if (report.fileId === fileId) {
+          fileDetails = report;
+          break;
+        }
+      }
+    }
+
+    if (!fileDetails) {
+      return res.status(404).json({ message: "File details not found" });
+    }
+
+    const response = await fetch(fileDetails.url);
+    if (!response.ok) {
+      throw new Error("Failed to fetch file from storage");
+    }
+
+    const encryptedBuffer = Buffer.from(await response.arrayBuffer());
+    
+    const decryptedBuffer = decryptBuffer(encryptedBuffer);
+    res.set({
+      'Content-Type': fileDetails.mimeType || 'application/octet-stream',
+      'Content-Disposition': `inline; filename="${fileDetails.originalName || 'file'}"`,
+      'Content-Length': decryptedBuffer.length,
+      'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
+    res.send(decryptedBuffer);
+  } catch (error) {
+    console.error("Error serving secure file:", error);
+    res.status(500).json({ message: "Error accessing file", error: error.message });
   }
 };
