@@ -794,3 +794,47 @@ export const rateAppointment = async (req, res) => {
     res.status(500).json({ message: "Error rating appointment", error: error.message });
   }
 };
+
+export const updateAppointmentMeetingLink = async (req, res) => {
+  try {
+    const patientId = req.user._id;
+    const { appointmentId } = req.params;
+    const { meetingLink } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+      return res.status(400).json({ message: "Invalid appointment ID" });
+    }
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    if (appointment.patient.toString() !== patientId.toString()) {
+      return res.status(403).json({ message: "Unauthorized: This appointment does not belong to you" });
+    }
+
+    if (appointment.status === "cancelled" || appointment.status === "completed") {
+      return res.status(400).json({ message: "Cannot update meeting link for cancelled or completed appointments" });
+    }
+
+    if (appointment.consultationMode !== "online") {
+      return res.status(400).json({ message: "Meeting link can only be added for online consultations" });
+    }
+
+    appointment.meetingLink = meetingLink || null;
+    await appointment.save();
+
+    const updatedAppointment = await Appointment.findById(appointmentId)
+      .populate("patient", "firstName lastName email phone")
+      .populate("doctor", "firstName lastName email phone");
+
+    res.status(200).json({
+      message: "Meeting link updated successfully",
+      appointment: updatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error updating meeting link:", error);
+    res.status(500).json({ message: "Error updating meeting link", error: error.message });
+  }
+};

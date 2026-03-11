@@ -11,7 +11,8 @@ import {
   rescheduleAppointment,
   getAvailableSlots,
   getAppointmentDetails,
-  rateAppointment
+  rateAppointment,
+  updateAppointmentMeetingLink
 } from "../controllers/patientController.js"
 import protectUser from "../middlewares/protectUser.js"
 import { 
@@ -54,16 +55,19 @@ router.get("/appointments", protectUser, getMyAppointments);
 // Get available slots for a doctor on a specific date
 router.get("/appointments/slots", protectUser, getAvailableSlots);
 
-// Get appointment details
+// Reschedule appointment
+router.put("/appointments/:appointmentId/reschedule", protectUser, rescheduleAppointment);
+
+// Update meeting link
+router.patch("/appointments/:appointmentId/meeting-link", protectUser, updateAppointmentMeetingLink);
+
+// Rate and review appointment
+router.post("/appointments/:appointmentId/rate", protectUser, rateAppointment);
+
+// Get appointment details (keep generic routes last)
 router.get("/appointments/:appointmentId", protectUser, getAppointmentDetails);
 
 // Cancel appointment
 router.delete("/appointments/:appointmentId", protectUser, cancelAppointment);
-
-// Reschedule appointment
-router.put("/appointments/:appointmentId/reschedule", protectUser, rescheduleAppointment);
-
-// Rate and review appointment
-router.post("/appointments/:appointmentId/rate", protectUser, rateAppointment);
 
 export default router;
