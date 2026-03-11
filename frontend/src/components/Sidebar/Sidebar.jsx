@@ -18,12 +18,15 @@ import {
   FolderPlus,
   MessageCircle,
   Shield,
-  FileText
+  FileText,
+  ChevronLeft,
+  ChevronRight
   
 } from 'lucide-react';
 
 function Sidebar({ role, user }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const baseMenuItems = {
     doctor: [
       { icon: Home, label: 'My Health' , link: '/doctor-dashboard/myhealth' },
@@ -89,33 +92,57 @@ function Sidebar({ role, user }) {
   }
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto z-50">
-      <div className="p-6 flex items-center space-x-3">
-        <HeartPulse className="h-8 w-8 text-blue-400" />
-        <h2 className="text-2xl font-bold text-blue-600">Health Partner</h2>
+    <div className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 flex flex-col overflow-y-auto z-50 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+      {/* Header */}
+      <div className="p-4 flex items-center justify-between">
+        {!isCollapsed && (
+          <div className="flex items-center space-x-2">
+            <HeartPulse className="h-7 w-7 text-blue-400 flex-shrink-0" />
+            <h2 className="text-lg font-bold text-blue-600 whitespace-nowrap">Health Partner</h2>
+          </div>
+        )}
+        {isCollapsed && <HeartPulse className="h-7 w-7 text-blue-400 mx-auto" />}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="ml-auto p-1.5 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          title={isCollapsed ? "Expand" : "Collapse"}
+        >
+          {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+        </button>
       </div>
-      <nav className="flex-1 px-4">
+
+      {/* Navigation */}
+      <nav className="flex-1 px-2">
         {menuItems[role].map((item, index) => (
           <Link
             key={index}
             to={item.link}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 rounded-lg mb-1"
+            className={`w-full flex items-center space-x-3 px-3 py-3 text-gray-700 hover:bg-blue-50 rounded-lg mb-1 transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+            title={isCollapsed ? item.label : ''}
           >
-            <item.icon className="w-5 h-5" />
-            <span>{item.label}</span>
+            <item.icon className="w-5 h-5 flex-shrink-0" />
+            {!isCollapsed && <span className="text-sm">{item.label}</span>}
           </Link>
-
         ))}
       </nav>
-      <div className=" bg-gray-100  p-6 shadow-sm border border-gray-100">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg cursor-pointer"
-        onClick={()=>navigate(`/${role}-dashboard/user-settings`)}>
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
+
+      {/* Footer - Settings & Logout */}
+      <div className="bg-gray-100 p-2 shadow-sm border border-gray-100">
+        <button 
+          className={`w-full flex items-center space-x-3 px-3 py-3 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+          onClick={() => navigate(`/${role}-dashboard/user-settings`)}
+          title={isCollapsed ? "Settings" : ''}
+        >
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          {!isCollapsed && <span className="text-sm">Settings</span>}
         </button>
-        <button onClick={() => setShowLogoutConfirm(true)} className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer">
-          <LogOut className="w-5 h-5" />
-          <span>Logout</span>
+        <button 
+          onClick={() => setShowLogoutConfirm(true)}
+          className={`w-full flex items-center space-x-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? "Logout" : ''}
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!isCollapsed && <span className="text-sm">Logout</span>}
         </button>
       </div>
       <ConfirmDialog
@@ -125,9 +152,7 @@ function Sidebar({ role, user }) {
         title="Confirm Logout"
         message="Are you sure you want to logout?"
       />
-     
     </div>
-    
   );
 }
 

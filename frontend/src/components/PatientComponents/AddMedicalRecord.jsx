@@ -245,7 +245,7 @@ const AddMedicalRecord = () => {
 
   return (
     <div className="min-h-screen bg-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="p-6 sm:p-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
@@ -457,11 +457,6 @@ const AddMedicalRecord = () => {
                         onChange={(e) =>
                           handleFileChange(e, "prescriptionImages")
                         }
-                      />
-                      <img
-                        src={preview}
-                        alt="Preview"
-                        className="mt-2 w-32 h-32 object-cover"
                       />
                     </label>
                     {selectedFiles.prescriptionImages.length > 0 && (
