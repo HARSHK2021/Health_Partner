@@ -12,6 +12,7 @@ import {
   ScanHeart,
   Stethoscope,
   Loader,
+  Download,
 } from "lucide-react";
 import { CMH_ROUTES } from "../../cmhRoutes/cmh.routes";
 
@@ -75,6 +76,45 @@ const MedicalRecordsList = () => {
 
   const handleBack = () => {
     setSelectedRecord(null);
+  };
+  const openSecureFile = async (file, e) => {
+    e.preventDefault();
+    if (typeof file === 'string') {
+      window.open(file, '_blank');
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Authentication required");
+        return;
+      }
+
+      const response = await axios.get(
+        `${CMH_ROUTES.SECURE_FILE}/${file.fileId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: 'blob'
+        }
+      );
+      const blob = new Blob([response.data], { type: file.mimeType || 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      
+      const newWindow = window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      console.error("Error opening secure file:", err);
+      alert(err.response?.data?.message || "Failed to open file. You may not have permission.");
+    }
+  };
+
+  const getFileName = (file, prefix, idx) => {
+    if (typeof file === 'string') {
+      return `${prefix} ${idx + 1}`;
+    }
+    return file.originalName || `${prefix} ${idx + 1}`;
   };
 
   // Loading state
@@ -210,26 +250,24 @@ const MedicalRecordsList = () => {
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {selectedRecord.prescriptionImages?.map((image, idx) => (
-                      <a
+                      <button
                         key={idx}
-                        href={image}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-blue-100 text-blue-700 px-4 py-3 rounded-lg text-center hover:bg-blue-200 transition-colors"
+                        onClick={(e) => openSecureFile(image, e)}
+                        className="bg-blue-100 text-blue-700 px-4 py-3 rounded-lg text-center hover:bg-blue-200 transition-colors flex items-center justify-center gap-2"
                       >
-                        View Prescription {idx + 1}
-                      </a>
+                        <Download className="w-4 h-4" />
+                        {getFileName(image, 'Prescription', idx)}
+                      </button>
                     ))}
                     {selectedRecord.medicalReports?.map((report, idx) => (
-                      <a
+                      <button
                         key={idx}
-                        href={report}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-purple-100 text-purple-700 px-4 py-3 rounded-lg text-center hover:bg-purple-200 transition-colors"
+                        onClick={(e) => openSecureFile(report, e)}
+                        className="bg-purple-100 text-purple-700 px-4 py-3 rounded-lg text-center hover:bg-purple-200 transition-colors flex items-center justify-center gap-2"
                       >
-                        View Report {idx + 1}
-                      </a>
+                        <Download className="w-4 h-4" />
+                        {getFileName(report, 'Report', idx)}
+                      </button>
                     ))}
                   </div>
                 </div>

@@ -15,6 +15,7 @@ export const CMH_ROUTES = {
     ADD_MEDICAL_RECORD: `${host}/patient/upload-medical-records`,
     GET_MEDICAL_RECORD: `${host}/patient/medical-records/`,
     GET_MEDICAL_RECORD_BY_ID: `${host}/patient/medical-records/user`,
+    SECURE_FILE: `${host}/patient/secure-file`,
     
     // Doctor-patient data sharing routes
     // Doctor routes
